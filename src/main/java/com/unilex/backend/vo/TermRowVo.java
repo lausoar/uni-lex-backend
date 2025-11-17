@@ -1,11 +1,17 @@
 package com.unilex.backend.vo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Builder
 public class TermRowVo {
+    @TableId(type = IdType.AUTO)
     private Long id;
     private String shortKey;
     private String definition;
@@ -18,4 +24,5 @@ public class TermRowVo {
     private Boolean predefined;
     private Boolean confirmed;
     private Integer sortOrder;
+    private Long dirId;
 }

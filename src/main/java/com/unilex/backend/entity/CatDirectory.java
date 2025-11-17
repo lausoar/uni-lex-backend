@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @TableName("cat_directory")
 public class CatDirectory {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     private Long parentId;

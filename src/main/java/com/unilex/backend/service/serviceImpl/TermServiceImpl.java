@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,5 +60,31 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setProductEms(vo.getProductEms() ? 1 : 0);
         entry.setProductOnepoint(vo.getProductOnepoint() ? 1 : 0);
         termEntryMapper.updateById(entry);
+    }
+
+    @Override
+    @Transactional
+    public TermEntry addTerm(TermRowVo vo) {
+        // 1. 构造实体
+        TermEntry entry = new TermEntry();
+        entry.setDirId(vo.getDirId());          // 前端传过来
+        entry.setShortKey(vo.getShortKey());
+        entry.setDefinition(vo.getDefinition());
+        entry.setZhCn(vo.getZhCn());
+        entry.setEnUs(vo.getEnUs());
+        entry.setJaJp(vo.getJaJp());
+        entry.setProductSmartom(vo.getProductSmartom() ? 1 : 0);  // 前端传入布尔值，转换为 1 或 0
+        entry.setProductEms(vo.getProductEms() ? 1 : 0);           // 前端传入布尔值，转换为 1 或 0
+        entry.setProductOnepoint(vo.getProductOnepoint() ? 1 : 0); // 前端传入布尔值，转换为 1 或 0
+
+
+        // 2. 默认值
+        entry.setIsPredefined(0);
+        entry.setConfirmed(0);
+        entry.setSortOrder(0);  // 插到最前，也可让前端传
+
+        // 3. 落库
+        save(entry);            // IService 提供的 save → 返回后 entry.id 已回填
+        return entry;
     }
 }

@@ -15,5 +15,6 @@ public interface TermService extends IService<TermEntry> {
 
     void updateTerm(Long id, TermRowVo vo);
 
+    TermEntry addTerm(TermRowVo vo);
 
 }

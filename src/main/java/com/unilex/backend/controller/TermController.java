@@ -2,6 +2,7 @@ package com.unilex.backend.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.unilex.backend.common.R;
+import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.service.TermService;
 import com.unilex.backend.vo.TermRowVo;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,28 @@ public class TermController {
     public R<Void> delete(@PathVariable Long id) {
         termService.removeById(id);
         return R.ok(null);
+    }
+
+    /**
+     * 新增术语（挂在指定目录下）
+     */
+    @PostMapping
+    public R<TermRowVo> add(@RequestBody TermRowVo vo) {
+        TermEntry newEntry = termService.addTerm(vo);
+        // 把刚插入的实体回显给前端（含主键 id）
+        return R.ok(TermRowVo.builder()
+                .id(newEntry.getId())
+                .shortKey(newEntry.getShortKey())
+                .definition(newEntry.getDefinition())
+                .zhCn(newEntry.getZhCn())
+                .enUs(newEntry.getEnUs())
+                .jaJp(newEntry.getJaJp())
+                .productSmartom(newEntry.getProductSmartom() == 1)
+                .productEms(newEntry.getProductEms() == 1)
+                .productOnepoint(newEntry.getProductOnepoint() == 1)
+                .predefined(newEntry.getIsPredefined() == 1)
+                .confirmed(newEntry.getConfirmed() == 1)
+                .sortOrder(newEntry.getSortOrder())
+                .build());
     }
 }
