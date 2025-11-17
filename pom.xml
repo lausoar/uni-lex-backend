@@ -57,14 +57,14 @@
         <!-- MyBatis-Plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.5</version>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.14</version>
         </dependency>
         <!-- MP 代码生成器（可选，用不到可删） -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.5.5</version>
+            <version>3.5.8</version>
         </dependency>
         <dependency>
             <groupId>org.freemarker</groupId>
