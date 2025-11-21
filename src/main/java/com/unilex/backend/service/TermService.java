@@ -19,4 +19,5 @@ public interface TermService extends IService<TermEntry> {
     TermEntry addTerm(TermRowVo vo);
 
     void updateFlags(Long id, TermFlagsUpdateVo vo);
-}
+
+    List<TermRowVo> search(List<String> products, String dataType, String keyword);}

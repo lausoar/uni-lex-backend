@@ -74,4 +74,14 @@ public class TermController {
         termService.updateFlags(id, vo);
         return R.ok(null);
     }
+
+
+    @GetMapping("/search")
+    public R<List<TermRowVo>> search(
+            @RequestParam(required = false) List<String> products,
+            @RequestParam(required = false) String dataType,
+            @RequestParam(required = false) String keyword) {
+        List<TermRowVo> list = termService.search(products, dataType, keyword);
+        return R.ok(list);
+    }
 }
