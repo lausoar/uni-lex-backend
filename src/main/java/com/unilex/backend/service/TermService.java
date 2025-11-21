@@ -3,6 +3,7 @@ package com.unilex.backend.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.unilex.backend.entity.TermEntry;
+import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
 
 import java.util.List;
@@ -17,4 +18,5 @@ public interface TermService extends IService<TermEntry> {
 
     TermEntry addTerm(TermRowVo vo);
 
+    void updateFlags(Long id, TermFlagsUpdateVo vo);
 }

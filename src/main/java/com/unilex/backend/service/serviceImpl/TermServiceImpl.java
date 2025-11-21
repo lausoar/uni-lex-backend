@@ -1,12 +1,10 @@
 package com.unilex.backend.service.serviceImpl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.mapper.TermEntryMapper;
 import com.unilex.backend.service.TermService;
+import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -86,5 +84,20 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         // 3. 落库
         save(entry);            // IService 提供的 save → 返回后 entry.id 已回填
         return entry;
+    }
+
+    @Override
+    @Transactional
+    public void updateFlags(Long id, TermFlagsUpdateVo vo) {
+        TermEntry e = new TermEntry();
+        e.setId(id);
+        if (vo.getConfirmed() != null) {
+            e.setConfirmed(vo.getConfirmed() ? 1 : 0);
+        }
+        if (vo.getPredefined() != null) {
+            e.setIsPredefined(vo.getPredefined() ? 1 : 0);
+        }
+        // 只更新非 null 字段
+        termEntryMapper.updateById(e);
     }
 }

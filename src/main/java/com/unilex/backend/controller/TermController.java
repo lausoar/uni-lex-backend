@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.service.TermService;
+import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,5 +63,15 @@ public class TermController {
                 .confirmed(newEntry.getConfirmed() == 1)
                 .sortOrder(newEntry.getSortOrder())
                 .build());
+    }
+
+    /**
+     * 仅更新 confirmed / is_predefined 两个字段
+     */
+    @PatchMapping("/{id}/flags")
+    public R<Void> updateFlags(@PathVariable Long id,
+                               @RequestBody @Validated TermFlagsUpdateVo vo) {
+        termService.updateFlags(id, vo);
+        return R.ok(null);
     }
 }

@@ -45,7 +45,7 @@ public class DirectoryServiceImpl implements DirectoryService {
                             v.setIsSystem(d.getIsSystem());
                             v.setName("zh".equals(lang) ? d.getDirNameZh() : d.getDirNameEn());
                             v.setChildren(new ArrayList<>());
-                            /* ✅ 关键：只要有术语就挂 termList，不管几级 */
+                            /*  关键：只要有术语就挂 termList，不管几级 */
                             List<TermEntry> tList = termMap.getOrDefault(d.getId(), List.of());
                             if (!tList.isEmpty()) {
                                 v.setTermList(tList.stream()
