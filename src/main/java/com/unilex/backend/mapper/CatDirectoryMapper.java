@@ -9,6 +9,6 @@ import java.util.List;
 public interface CatDirectoryMapper extends BaseMapper<CatDirectory> {
 
     // 一次性把整棵树抓出来，内存里拼父子（数据量 <1w 时最简单）
-    @Select("SELECT * FROM cat_directory ORDER BY parent_id, sort_order")
+    @Select("SELECT id, parent_id, dir_type, dir_key, dir_name_zh, dir_name_en, sort_order, is_system FROM cat_directory ORDER BY parent_id, sort_order")
     List<CatDirectory> listAllOrdered();
 }
