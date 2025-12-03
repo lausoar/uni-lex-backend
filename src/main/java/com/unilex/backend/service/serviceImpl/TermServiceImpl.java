@@ -116,35 +116,40 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
     }
 
     @Override
-    public List<TermRowVo> search(List<String> products, String dataType, String keyword) {
+    public List<TermRowVo> search(List<String> products,
+                                  String dataType,
+                                  String keyword,
+                                  List<String> projects) {
+
         LambdaQueryWrapper<TermEntry> qw = new LambdaQueryWrapper<>();
 
-        /* 1. 关键字模糊查询：shortKey / 中文 / 英文 / 日文 任一匹配 */
-        if (StringUtils.isNotBlank(keyword)) {
-            qw.and(w -> w
-                    .like(TermEntry::getShortKey, keyword)
-                    .or()
-                    .like(TermEntry::getZhCn, keyword)
-                    .or()
-                    .like(TermEntry::getEnUs, keyword)
-                    .or()
-                    .like(TermEntry::getJaJp, keyword));
+        /* 1. 关键字 */
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            qw.and(w -> w.like(TermEntry::getShortKey, keyword)
+                    .or().like(TermEntry::getZhCn, keyword)
+                    .or().like(TermEntry::getEnUs, keyword)
+                    .or().like(TermEntry::getJaJp, keyword));
         }
 
-        /* 2. 多选产品 → AND 关系（所有选中都必须为 1） */
+        /* 2. 产品（AND 关系） */
         if (products != null && !products.isEmpty()) {
             qw.and(w -> {
                 for (String p : products) {
                     if ("SmartOM".equalsIgnoreCase(p)) w.eq(TermEntry::getProductSmartom, 1);
-                    if ("EMS".equalsIgnoreCase(p)) w.eq(TermEntry::getProductEms, 1);
-                    if ("OnePoint".equalsIgnoreCase(p)) w.eq(TermEntry::getProductOnepoint, 1);
+                    if ("EMS".equalsIgnoreCase(p))     w.eq(TermEntry::getProductEms, 1);
+                    if ("OnePoint".equalsIgnoreCase(p))w.eq(TermEntry::getProductOnepoint, 1);
                 }
             });
         }
 
-        /* 3. 数据类型过滤（示例：用 shortKey 前缀 like 模拟） */
-        if (StringUtils.isNotBlank(dataType)) {
+        /* 3. 数据类型（用 dirId 模拟） */
+        if (dataType != null && !dataType.trim().isEmpty()) {
             qw.eq(TermEntry::getDirId, dataType);
+        }
+
+        /* 4. 所属项目 */
+        if (projects != null && !projects.isEmpty()) {   // 只加非空判断
+            qw.in(TermEntry::getProjectName, projects);
         }
 
         qw.orderByAsc(TermEntry::getSortOrder);

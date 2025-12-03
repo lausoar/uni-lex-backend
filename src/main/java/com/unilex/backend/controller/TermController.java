@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/term")
@@ -81,8 +82,25 @@ public class TermController {
     public R<List<TermRowVo>> search(
             @RequestParam(required = false) List<String> products,
             @RequestParam(required = false) String dataType,
-            @RequestParam(required = false) String keyword) {
-        List<TermRowVo> list = termService.search(products, dataType, keyword);
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> projects) {
+        List<TermRowVo> list = termService.search(products, dataType, keyword, projects);
+        return R.ok(list);
+    }
+
+    @GetMapping("/projects")
+    public R<List<String>> allProjects() {
+        // 查询所有已确认的术语，把 project_name 去空、去重、排序
+        List<String> list = termService.lambdaQuery()
+//                .eq(TermEntry::getConfirmed, 1)
+                .isNotNull(TermEntry::getProjectName)
+                .ne(TermEntry::getProjectName, "")
+                .orderByAsc(TermEntry::getProjectName)
+                .list()
+                .stream()
+                .map(TermEntry::getProjectName)
+                .distinct()
+                .collect(Collectors.toList());
         return R.ok(list);
     }
 }
