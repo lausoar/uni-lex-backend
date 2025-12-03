@@ -76,6 +76,7 @@ public class DirectoryServiceImpl implements DirectoryService {
                 .zhCn(e.getZhCn())
                 .enUs(e.getEnUs())
                 .jaJp(e.getJaJp())
+                .projectName(e.getProjectName())
                 .productSmartom(e.getProductSmartom() == 1)
                 .productEms(e.getProductEms() == 1)
                 .productOnepoint(e.getProductOnepoint() == 1)

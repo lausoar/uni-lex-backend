@@ -36,6 +36,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
                         .zhCn(e.getZhCn())
                         .enUs(e.getEnUs())
                         .jaJp(e.getJaJp())
+                        .projectName(e.getProjectName())
                         .productSmartom(e.getProductSmartom() == 1)
                         .productEms(e.getProductEms() == 1)
                         .productOnepoint(e.getProductOnepoint() == 1)
@@ -56,6 +57,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setZhCn(vo.getZhCn());
         entry.setEnUs(vo.getEnUs());
         entry.setJaJp(vo.getJaJp());
+        entry.setProjectName(vo.getProjectName());
         entry.setProductSmartom(vo.getProductSmartom() ? 1 : 0);
         entry.setProductEms(vo.getProductEms() ? 1 : 0);
         entry.setProductOnepoint(vo.getProductOnepoint() ? 1 : 0);
@@ -73,6 +75,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setZhCn(vo.getZhCn());
         entry.setEnUs(vo.getEnUs());
         entry.setJaJp(vo.getJaJp());
+        entry.setProjectName(vo.getProjectName());
         entry.setProductSmartom(boolToInt(vo.getProductSmartom()));
         entry.setProductEms(boolToInt(vo.getProductEms()));
         entry.setProductOnepoint(boolToInt(vo.getProductOnepoint()));
@@ -160,6 +163,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
                 .zhCn(e.getZhCn())
                 .enUs(e.getEnUs())
                 .jaJp(e.getJaJp())
+                .projectName(e.getProjectName())
                 .productSmartom(e.getProductSmartom() == 1)
                 .productEms(e.getProductEms() == 1)
                 .productOnepoint(e.getProductOnepoint() == 1)

@@ -18,6 +18,7 @@ public class TermEntry {
     private String zhCn;
     private String enUs;
     private String jaJp;
+    private String projectName;
     private Integer productSmartom;
     private Integer productEms;
     private Integer productOnepoint;

@@ -56,6 +56,7 @@ public class TermController {
                 .zhCn(newEntry.getZhCn())
                 .enUs(newEntry.getEnUs())
                 .jaJp(newEntry.getJaJp())
+                .projectName(newEntry.getProjectName())
                 .productSmartom(newEntry.getProductSmartom() == 1)
                 .productEms(newEntry.getProductEms() == 1)
                 .productOnepoint(newEntry.getProductOnepoint() == 1)

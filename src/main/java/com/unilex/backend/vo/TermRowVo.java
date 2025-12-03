@@ -18,6 +18,7 @@ public class TermRowVo {
     private String zhCn;
     private String enUs;
     private String jaJp;
+    private String projectName;
     private Boolean productSmartom;
     private Boolean productEms;
     private Boolean productOnepoint;
