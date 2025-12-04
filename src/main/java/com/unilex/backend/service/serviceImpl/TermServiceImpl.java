@@ -119,7 +119,8 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
     public List<TermRowVo> search(List<String> products,
                                   String dataType,
                                   String keyword,
-                                  List<String> projects) {
+                                  List<String> projects,
+                                  String confirm) {
 
         LambdaQueryWrapper<TermEntry> qw = new LambdaQueryWrapper<>();
 
@@ -150,6 +151,19 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         /* 4. 所属项目 */
         if (projects != null && !projects.isEmpty()) {   // 只加非空判断
             qw.in(TermEntry::getProjectName, projects);
+        }
+
+        /* 5. 确认状态 */
+        switch (confirm) {
+            case "pending":
+                qw.eq(TermEntry::getConfirmed, 0);
+                break;
+            case "confirmed":
+                qw.eq(TermEntry::getConfirmed, 1);
+                break;
+            case "all":
+            default:
+                break;
         }
 
         qw.orderByAsc(TermEntry::getSortOrder);

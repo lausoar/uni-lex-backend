@@ -83,8 +83,9 @@ public class TermController {
             @RequestParam(required = false) List<String> products,
             @RequestParam(required = false) String dataType,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) List<String> projects) {
-        List<TermRowVo> list = termService.search(products, dataType, keyword, projects);
+            @RequestParam(required = false) List<String> projects,
+            @RequestParam(defaultValue = "all") String confirm) {
+        List<TermRowVo> list = termService.search(products, dataType, keyword, projects, confirm);
         return R.ok(list);
     }
 
