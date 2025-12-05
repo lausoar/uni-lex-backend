@@ -17,6 +17,9 @@ spring:
       idle-timeout: 30000
       max-lifetime: 1800000
       connection-test-query: SELECT 1
+  security:
+    user:
+      name: none   # 禁用 SpringBoot 默认生成用户
 
 # ========== MyBatis-Plus 补充 ==========
 mybatis-plus:
@@ -35,3 +38,7 @@ mybatis-plus:
       logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+jwt:
+  secret: uni-lex-backend-secret-key-must-long-than-256-bits-1234567890
+  expiration: 10s   # 过期时间，支持 Duration 表达式
