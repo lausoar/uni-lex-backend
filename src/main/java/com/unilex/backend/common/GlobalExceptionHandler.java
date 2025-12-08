@@ -25,4 +25,10 @@ public class GlobalExceptionHandler {
         log.error("系统异常: ", e);
         return R.error(500, e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public R<Void> handleIllegal(IllegalArgumentException e) {
+        return R.error(400, e.getMessage());
+    }
 }

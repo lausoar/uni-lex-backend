@@ -22,8 +22,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
     }
 
     @Override
-    @Transactional   // 建议加事务
+    @Transactional
     public void register(String username, String rawPassword) {
+        /* 唯一键冲突 DB 会抛 DuplicateKeyException，这里只补长度兜底 */
+        if (rawPassword == null || rawPassword.length() < 8) {
+            throw new IllegalArgumentException("密码长度至少 8 位");
+        }
         SysUser user = new SysUser();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(rawPassword));

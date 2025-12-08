@@ -41,4 +41,4 @@ mybatis-plus:
 
 jwt:
   secret: uni-lex-backend-secret-key-must-long-than-256-bits-1234567890
-  expiration: 10s   # 过期时间，支持 Duration 表达式
+  expiration: 8h   # 过期时间，支持 Duration 表达式

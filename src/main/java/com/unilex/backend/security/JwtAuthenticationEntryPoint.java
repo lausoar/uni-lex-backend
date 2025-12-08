@@ -17,6 +17,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
+        response.setHeader("X-Token-Expired", "true");
         response.getWriter().write("{\"code\":401,\"msg\":\"请先登录\"}");
     }
 }
