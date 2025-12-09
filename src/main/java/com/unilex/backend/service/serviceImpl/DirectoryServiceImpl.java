@@ -74,6 +74,7 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
     private TermRowVo convertTerm(TermEntry e) {
         return TermRowVo.builder()
                 .id(e.getId())
+                .creator(e.getCreator())
                 .shortKey(e.getShortKey())
                 .definition(e.getDefinition())
                 .zhCn(e.getZhCn())

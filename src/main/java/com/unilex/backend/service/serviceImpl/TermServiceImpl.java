@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.mapper.TermEntryMapper;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.TermService;
+import com.unilex.backend.utils.SecurityUtil;
 import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
                         .predefined(e.getIsPredefined() == 1)
                         .confirmed(e.getConfirmed() == 1)
                         .sortOrder(e.getSortOrder())
+                        .creator(e.getCreator())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -50,6 +53,14 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
     @Override
     @Transactional
     public void updateTerm(Long id, TermRowVo vo) {
+        TermEntry exist = getById(id);
+        if (exist == null) {
+            throw new IllegalArgumentException("术语不存在");
+        }
+        // 权限校验
+//        if (!canWrite(exist)) {
+//            throw new SecurityException("只能修改自己创建的术语");
+//        }
         TermEntry entry = new TermEntry();
         entry.setId(id);
         entry.setShortKey(vo.getShortKey());
@@ -79,6 +90,9 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setProductSmartom(boolToInt(vo.getProductSmartom()));
         entry.setProductEms(boolToInt(vo.getProductEms()));
         entry.setProductOnepoint(boolToInt(vo.getProductOnepoint()));
+
+        Long userId = SecurityUtil.currentUserId();   // 见下文工具类
+        entry.setCreator(userId);
 
         // 2. 默认值
         entry.setIsPredefined(0);

@@ -33,5 +33,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         user.setPassword(passwordEncoder.encode(rawPassword));
         save(user);
     }
+
+    @Override
+    public SysUser getByUsername(String username) {
+        return lambdaQuery().eq(SysUser::getUsername, username).one();
+    }
 }
 // 功能模块：用户 Service 实现

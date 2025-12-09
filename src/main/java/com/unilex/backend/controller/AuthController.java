@@ -1,6 +1,7 @@
 package com.unilex.backend.controller;
 
 import com.unilex.backend.common.R;
+import com.unilex.backend.entity.SysUser;
 import com.unilex.backend.service.CaptchaService;
 import com.unilex.backend.service.SysPermService;
 import com.unilex.backend.service.SysUserService;
@@ -79,10 +80,12 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(username, password));
             String token = jwtUtil.generateToken(username);
             List<String> perms = permService.listUserPerms(username);
+            SysUser user = userService.getByUsername(username);
             LoginRespVo resp = LoginRespVo.builder()
                     .token(token)
                     .username(username)
                     .perms(perms)
+                    .userId(user.getId())
                     .build();
             return ResponseEntity.ok(R.ok(resp));
         } catch (BadCredentialsException e) {

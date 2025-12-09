@@ -13,6 +13,8 @@ public class TermEntry {
     private Long id;
 
     private Long dirId;
+    @TableField("creator")
+    private Long creator;
     private String shortKey;
     private String definition;
     private String zhCn;

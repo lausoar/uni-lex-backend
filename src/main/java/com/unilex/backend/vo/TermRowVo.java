@@ -5,14 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Builder
 public class TermRowVo {
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long creator;
     private String shortKey;
     private String definition;
     private String zhCn;
