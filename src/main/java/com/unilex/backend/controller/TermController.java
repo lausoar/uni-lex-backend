@@ -3,6 +3,7 @@ package com.unilex.backend.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.TermEntry;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.TermService;
 import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
@@ -31,6 +32,7 @@ public class TermController {
     }
 
     @PutMapping("/{id}")
+    @ReqPerm("term:update")
     public R<Void> update(@PathVariable Long id,
                           @RequestBody TermRowVo vo) {
         termService.updateTerm(id, vo);
@@ -38,6 +40,7 @@ public class TermController {
     }
 
     @DeleteMapping("/{id}")
+    @ReqPerm("term:delete")
     public R<Void> delete(@PathVariable Long id) {
         termService.removeById(id);
         return R.ok(null);
@@ -47,6 +50,7 @@ public class TermController {
      * 新增术语（挂在指定目录下）
      */
     @PostMapping
+    @ReqPerm("term:add")
     public R<TermRowVo> add(@RequestBody TermRowVo vo) {
         TermEntry newEntry = termService.addTerm(vo);
         // 把刚插入的实体回显给前端（含主键 id）
@@ -71,6 +75,7 @@ public class TermController {
      * 仅更新 confirmed / is_predefined 两个字段
      */
     @PatchMapping("/{id}/flags")
+    @ReqPerm("term:confirm")
     public R<Void> updateFlags(@PathVariable Long id,
                                @RequestBody @Validated TermFlagsUpdateVo vo) {
         termService.updateFlags(id, vo);

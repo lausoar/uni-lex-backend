@@ -94,6 +94,11 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+        <!-- Spring Boot 官方 AOP 起步依赖（已含 spring-aop + aspectj-weaver） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
