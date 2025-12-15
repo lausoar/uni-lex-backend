@@ -9,6 +9,7 @@ import com.unilex.backend.service.SysPermService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,5 +34,21 @@ public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> impl
     // 新增：查全部权限
     public List<SysPerm> listAll() {
         return list();
+    }
+
+    @Override
+    @Transactional
+    public void savePerm(SysPerm po) {
+        // 唯一校验
+        if (lambdaQuery().eq(SysPerm::getPermCode, po.getPermCode())
+                .ne(po.getId() != null, SysPerm::getId, po.getId())
+                .count() > 0) {
+            throw new IllegalArgumentException("权限编码已存在");
+        }
+        if (po.getId() == null) {
+            save(po);
+        } else {
+            updateById(po);
+        }
     }
 }
