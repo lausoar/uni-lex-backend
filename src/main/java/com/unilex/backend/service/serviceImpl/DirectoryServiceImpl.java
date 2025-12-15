@@ -7,6 +7,7 @@ import com.unilex.backend.mapper.CatDirectoryMapper;
 import com.unilex.backend.mapper.TermEntryMapper;
 import com.unilex.backend.service.DirectoryService;
 import com.unilex.backend.vo.DirAddVo;
+import com.unilex.backend.vo.DirSaveVo;
 import com.unilex.backend.vo.DirTreeVo;
 import com.unilex.backend.vo.TermRowVo;
 import lombok.RequiredArgsConstructor;
@@ -123,5 +124,43 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
         /* 4. 落库 */
         dirMapper.insert(po);
         return po.getId();
+    }
+
+    @Override
+    @Transactional
+    public void saveDir(DirSaveVo vo) {
+        // 唯一校验：同级 dirKey 不能重复
+        if (lambdaQuery()
+                .eq(CatDirectory::getParentId, vo.getParentId())
+                .eq(CatDirectory::getDirKey, vo.getDirKey())
+                .ne(vo.getId() != null, CatDirectory::getId, vo.getId())
+                .count() > 0) {
+            throw new IllegalArgumentException("同级目录下 Key 已存在");
+        }
+        CatDirectory po = new CatDirectory();
+        po.setParentId(vo.getParentId());
+        po.setDirType(vo.getDirType());
+        po.setDirKey(vo.getDirKey());
+        po.setDirNameZh(vo.getDirNameZh());
+        po.setDirNameEn(vo.getDirNameEn());
+        po.setSortOrder(vo.getSortOrder() == null ? 0 : vo.getSortOrder());
+        po.setIsSystem(Boolean.TRUE.equals(vo.getIsSystem()) ? 1 : 0);
+
+        if (vo.getId() == null) {
+            save(po);
+        } else {
+            po.setId(vo.getId());
+            updateById(po);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delDir(Long id) {
+        // 存在子级禁止删除
+        if (lambdaQuery().eq(CatDirectory::getParentId, id).count() > 0) {
+            throw new IllegalArgumentException("存在子目录，不允许删除");
+        }
+        removeById(id);
     }
 }
