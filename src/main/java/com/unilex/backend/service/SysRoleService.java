@@ -8,4 +8,5 @@ import java.util.List;
 public interface SysRoleService extends IService<SysRole> {
     List<SysRole> listAll();
     List<SysRole> listByUserId(Long userId);
+    void saveRoleWithPerms(SysRole role, List<Long> permIdList);
 }

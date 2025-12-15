@@ -16,4 +16,10 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
             "JOIN sys_user_role ur ON r.id = ur.role_id " +
             "WHERE ur.user_id = #{userId}")
     List<SysRole> listByUserId(@Param("userId") Long userId);
+
+    @Select("SELECT p.perm_name " +
+            "FROM sys_perm p " +
+            "JOIN sys_role_perm rp ON p.id = rp.perm_id " +
+            "WHERE rp.role_id = #{roleId}")
+    List<String> listPermCodesByRoleId(@Param("roleId") Long roleId);
 }
