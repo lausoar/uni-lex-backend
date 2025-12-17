@@ -10,11 +10,19 @@ import java.util.List;
 @Mapper
 public interface SysPermMapper extends BaseMapper<SysPerm> {
 
-    @Select("SELECT DISTINCT p.perm_name " +
+    @Select("SELECT DISTINCT p.perm_code " +
             "FROM sys_user u " +
             "JOIN sys_user_role ur ON u.id = ur.user_id " +
             "JOIN sys_role_perm rp ON ur.role_id = rp.role_id " +
             "JOIN sys_perm p ON rp.perm_id = p.id " +
             "WHERE u.username = #{username}")
     List<String> listCodesByUsername(String username);
+
+    @Select("SELECT DISTINCT p.perm_name " +
+            "FROM sys_user u " +
+            "JOIN sys_user_role ur ON u.id = ur.user_id " +
+            "JOIN sys_role_perm rp ON ur.role_id = rp.role_id " +
+            "JOIN sys_perm p ON rp.perm_id = p.id " +
+            "WHERE u.username = #{username}")
+    List<String> listNamesByUsername(String username);
 }

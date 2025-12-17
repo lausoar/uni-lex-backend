@@ -27,6 +27,12 @@ public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> impl
     }
 
     @Override
+    @Cacheable(value = "perm", key = "#username")
+    public List<String> listUserPermsName(String username) {
+        return permMapper.listNamesByUsername(username);
+    }
+
+    @Override
     public boolean hasPerm(String username, String permCode) {
         return listUserPerms(username).contains(permCode);
     }

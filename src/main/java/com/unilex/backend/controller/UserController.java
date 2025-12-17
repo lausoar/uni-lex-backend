@@ -51,11 +51,11 @@ public class UserController {
             List<String> roleDescs = roles.stream().map(SysRole::getDesc).collect(Collectors.toList());
 
             /* 3. 权限码照旧 */
-            List<String> perms = permService.listUserPerms(u.getUsername());
+            List<String> perms = permService.listUserPermsName(u.getUsername());
 
             List<Long>   roleIds   = roleService.listByUserId(u.getId())
                     .stream().map(SysRole::getId).collect(Collectors.toList());
-            List<String> permCodes = permService.listUserPerms(u.getUsername());
+            List<String> permCodes = permService.listUserPermsName(u.getUsername());
 
             return UserPageVo.builder()
                     .id(u.getId())

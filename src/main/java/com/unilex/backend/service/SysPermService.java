@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface SysPermService extends IService<SysPerm> {
     List<String> listUserPerms(String username);
+    List<String> listUserPermsName(String username);
     boolean hasPerm(String username, String permCode);
     List<SysPerm> listAll();
     void savePerm(SysPerm po);
