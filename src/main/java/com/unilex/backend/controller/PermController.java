@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.SysPerm;
+import com.unilex.backend.entity.SysRolePerm;
 import com.unilex.backend.service.SysPermService;
+import com.unilex.backend.service.SysRolePermService;
 import com.unilex.backend.vo.PermPageVo;
 import com.unilex.backend.vo.PermSaveVo;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class PermController {
 
     private final SysPermService permService;
+    private final SysRolePermService rolePermService;
 
     /* ------ 分页+搜索 ------ */
     @GetMapping
@@ -78,6 +81,9 @@ public class PermController {
     /* ------ 删除 ------ */
     @DeleteMapping("/{id}")
     public R<Void> del(@PathVariable Integer id) {
+        rolePermService.lambdaUpdate()
+                        .eq(SysRolePerm::getPermId, id)
+                        .remove();
         permService.removeById(id);
         return R.ok(null);
     }
@@ -86,5 +92,27 @@ public class PermController {
     @GetMapping("/all")
     public R<List<SysPerm>> all() {
         return R.ok(permService.list());
+    }
+
+    /* ------ 校验权限编码是否已存在 ------ */
+    @GetMapping("/exist-code")
+    public R<Boolean> existCode(@RequestParam String code,
+                                @RequestParam(required = false) Integer excludeId) {
+        boolean exist = permService.lambdaQuery()
+                .eq(SysPerm::getPermCode, code)
+                .ne(excludeId != null, SysPerm::getId, excludeId)
+                .count() > 0;
+        return R.ok(exist);
+    }
+
+    /* ------ 校验权限名称是否已存在 ------ */
+    @GetMapping("/exist-name")
+    public R<Boolean> existName(@RequestParam String name,
+                                @RequestParam(required = false) Integer excludeId) {
+        boolean exist = permService.lambdaQuery()
+                .eq(SysPerm::getPermName, name)
+                .ne(excludeId != null, SysPerm::getId, excludeId)
+                .count() > 0;
+        return R.ok(exist);
     }
 }
