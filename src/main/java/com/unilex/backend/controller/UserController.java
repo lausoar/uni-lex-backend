@@ -3,12 +3,8 @@ package com.unilex.backend.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
-import com.unilex.backend.entity.SysPerm;
-import com.unilex.backend.entity.SysRole;
-import com.unilex.backend.entity.SysUser;
-import com.unilex.backend.service.SysPermService;
-import com.unilex.backend.service.SysRoleService;
-import com.unilex.backend.service.SysUserService;
+import com.unilex.backend.entity.*;
+import com.unilex.backend.service.*;
 import com.unilex.backend.vo.UserPageVo;
 import com.unilex.backend.vo.UserSaveVo;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +23,8 @@ public class UserController {
     private final SysPermService permService;   // 已有
     private final PasswordEncoder encoder;
     private final SysRoleService roleService;   // 已有
+    private final SysUserRoleService userRoleService;   // 加
+    private final SysRolePermService rolePermService;
 
     /* ------ 分页 + 搜索 ------ */
     @GetMapping
@@ -107,6 +105,11 @@ public class UserController {
     /* ------ 删除 ------ */
     @DeleteMapping("/{id}")
     public R<Void> del(@PathVariable Long id) {
+        // 先清用户-角色中间表
+        userRoleService.lambdaUpdate()
+                .eq(SysUserRole::getUserId, id)
+                .remove();
+        // 最后删角色
         userService.removeById(id);
         return R.ok(null);
     }
@@ -131,5 +134,11 @@ public class UserController {
     @GetMapping("/perms")
     public R<List<SysPerm>> perms() {
         return R.ok(permService.listAll());
+    }
+
+    /* ------ 验重 ------ */
+    @GetMapping("/exists")
+    public R<Boolean> exists(@RequestParam String username) {
+        return R.ok(userService.exist(username));
     }
 }
