@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.SysPerm;
 import com.unilex.backend.entity.SysRole;
+import com.unilex.backend.entity.SysRolePerm;
 import com.unilex.backend.mapper.SysRoleMapper;
 import com.unilex.backend.service.SysPermService;
+import com.unilex.backend.service.SysRolePermService;
 import com.unilex.backend.service.SysRoleService;
 import com.unilex.backend.vo.RolePageVo;
 import com.unilex.backend.vo.RoleSaveVo;
@@ -25,6 +27,7 @@ public class RoleController {
     private final SysRoleService roleService;
     private final SysRoleMapper roleMapper;
     private final SysPermService permService;
+    private final SysRolePermService sysRolePermService;
 
     /* ------ 分页+搜索 ------ */
     @GetMapping
@@ -80,6 +83,9 @@ public class RoleController {
     /* ------ 删除 ------ */
     @DeleteMapping("/{id}")
     public R<Void> del(@PathVariable Long id) {
+        sysRolePermService.lambdaUpdate()
+                        .eq(SysRolePerm::getRoleId, id)
+                        .remove();
         roleService.removeById(id);
         return R.ok(null);
     }
@@ -88,5 +94,23 @@ public class RoleController {
     @GetMapping("/perms")
     public R<List<SysPerm>> perms() {
         return R.ok(permService.listAll());
+    }
+
+    /* ------ 检查角色名是否已存在 ------ */
+    @GetMapping("/exists")
+    public R<Boolean> exist(@RequestParam String name){
+        boolean exist = roleService.lambdaQuery()
+                .eq(SysRole::getName, name.trim())
+                .count() > 0;
+        return R.ok(exist);
+    }
+
+    /* ------ 检查中文描述是否已存在 ------ */
+    @GetMapping("/existsDesc")
+    public R<Boolean> existDesc(@RequestParam String desc){
+        boolean exist = roleService.lambdaQuery()
+                .eq(SysRole::getDesc, desc.trim())
+                .count() > 0;
+        return R.ok(exist);
     }
 }
