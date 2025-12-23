@@ -13,4 +13,6 @@ public class PermApplyVo {
     private Integer status;
     private String approveMsg;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String approverName;
 }

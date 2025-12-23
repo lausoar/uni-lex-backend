@@ -3,6 +3,7 @@ package com.unilex.backend.service.serviceImpl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.PermApply;
+import com.unilex.backend.entity.SysPerm;
 import com.unilex.backend.entity.SysRole;
 import com.unilex.backend.entity.SysUser;
 import com.unilex.backend.mapper.PermApplyMapper;
@@ -51,9 +52,15 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
             SysUser user = userService.getById(po.getApplicantId());
             vo.setApplicantName(user == null ? "-" : user.getUsername());
 
-            // 权限名称——按你真实实体/字段改
-            SysRole role = roleMapper.selectById(po.getPermId());
-            vo.setPermDesc(role == null ? "-" : role.getDesc());
+            // 审批人
+            if (po.getApproverId() != null) {
+                SysUser approver = userService.getById(po.getApproverId());
+                vo.setApproverName(approver == null ? "-" : approver.getUsername());
+            }
+
+            // 权限名称
+            SysPerm perm = permService.getById(po.getPermId());
+            vo.setPermDesc(perm == null ? "-" : perm.getPermName());
 
             return vo;
         });

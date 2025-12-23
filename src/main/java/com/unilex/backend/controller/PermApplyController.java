@@ -54,7 +54,11 @@ public class PermApplyController {
     public R<Void> audit(@PathVariable Long id,
                          @AuthenticationPrincipal UserDetails user,
                          @RequestBody AuditDto dto) {
-        Long approverId = Long.valueOf(user.getUsername()); // 同之前，确保这里已是用户主键
+        SysUser approver = userService.lambdaQuery()
+                .eq(SysUser::getUsername, user.getUsername())
+                .one();
+        if (approver == null) throw new RuntimeException("审批人不存在");
+        Long approverId = approver.getId();
         permApplyService.audit(id, approverId, dto.getStatus(), dto.getApproveMsg());
         return R.ok(null);
     }
