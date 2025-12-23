@@ -45,6 +45,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(rawPassword));
         save(user);
+        /* 绑定游客角色（role_id = 3） */
+        SysUserRole tourist = new SysUserRole(user.getId(), 3L);
+        userRoleService.save(tourist);
     }
 
     @Override

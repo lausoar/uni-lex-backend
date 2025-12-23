@@ -59,6 +59,13 @@ public class RoleController {
         return R.ok(voPage);
     }
 
+    /** 返回全部角色（权限申请时下拉框用） */
+    @GetMapping("/all")
+    public R<List<SysRole>> all() {
+        List<SysRole> list = roleService.list();
+        return R.ok(list);
+    }
+
     /* ------ 新增 ------ */
     @PostMapping
     public R<Void> add(@RequestBody RoleSaveVo vo) {
