@@ -3,16 +3,16 @@ package com.unilex.backend.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
-import com.unilex.backend.entity.SysPerm;
-import com.unilex.backend.entity.SysRole;
-import com.unilex.backend.entity.SysRolePerm;
+import com.unilex.backend.entity.*;
 import com.unilex.backend.mapper.SysRoleMapper;
-import com.unilex.backend.service.SysPermService;
-import com.unilex.backend.service.SysRolePermService;
-import com.unilex.backend.service.SysRoleService;
+import com.unilex.backend.mapper.SysUserMapper;
+import com.unilex.backend.mapper.SysUserRoleMapper;
+import com.unilex.backend.service.*;
 import com.unilex.backend.vo.RolePageVo;
 import com.unilex.backend.vo.RoleSaveVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -28,6 +28,8 @@ public class RoleController {
     private final SysRoleMapper roleMapper;
     private final SysPermService permService;
     private final SysRolePermService sysRolePermService;
+    private final SysUserService userService;
+    private final SysUserRoleMapper userRoleMapper;
 
     /* ------ 分页+搜索 ------ */
     @GetMapping
@@ -119,5 +121,20 @@ public class RoleController {
                 .eq(SysRole::getDesc, desc.trim())
                 .count() > 0;
         return R.ok(exist);
+    }
+
+    /**
+     * 当前登录用户已拥有的角色 id 列表（用于前端过滤下拉框）
+     */
+    @GetMapping("/owned")
+    public R<List<Long>> owned(@AuthenticationPrincipal UserDetails userDetails){
+        // 根据登录名拿到用户主键
+        SysUser user = userService.lambdaQuery()
+                .eq(SysUser::getUsername, userDetails.getUsername())
+                .one();
+        if (user == null) return R.ok(List.of());
+
+        List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(user.getId());
+        return R.ok(roleIds);
     }
 }

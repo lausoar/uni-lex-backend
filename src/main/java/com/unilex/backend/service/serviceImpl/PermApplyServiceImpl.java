@@ -8,6 +8,7 @@ import com.unilex.backend.entity.SysRole;
 import com.unilex.backend.entity.SysUser;
 import com.unilex.backend.mapper.PermApplyMapper;
 import com.unilex.backend.mapper.SysRoleMapper;
+import com.unilex.backend.mapper.SysUserRoleMapper;
 import com.unilex.backend.service.PermApplyService;
 import com.unilex.backend.service.SysPermService;
 import com.unilex.backend.service.SysUserService;
@@ -17,6 +18,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply>
@@ -25,6 +29,7 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
     private final SysUserService userService;
     private final SysPermService permService;
     private final SysRoleMapper roleMapper;
+    private final SysUserRoleMapper userRoleMapper;
 
     @Override
     @Transactional
@@ -38,9 +43,10 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
     }
 
     @Override
-    public Page<PermApplyVo> pageApply(long current, long size, Integer status) {
+    public Page<PermApplyVo> pageApply(long current, long size, List<Integer> statusList) {
         Page<PermApply> p = lambdaQuery()
-                .eq(status != null, PermApply::getStatus, status)
+                .in(statusList != null && !statusList.isEmpty(),
+                        PermApply::getStatus, statusList)
                 .orderByDesc(PermApply::getCreatedAt)
                 .page(new Page<>(current, size));
 
@@ -59,8 +65,8 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
             }
 
             // 权限名称
-            SysPerm perm = permService.getById(po.getPermId());
-            vo.setPermDesc(perm == null ? "-" : perm.getPermName());
+            SysRole role = roleMapper.selectById(po.getPermId());
+            vo.setPermDesc(role == null ? "-" : role.getDesc());
 
             return vo;
         });
@@ -76,6 +82,15 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
         one.setStatus(status);
         one.setApproverId(approverId);
         one.setApproveMsg(approveMsg);
+        one.setUpdatedAt(LocalDateTime.now());
         updateById(one);
+
+        // 审批通过 → 把权限授予申请人
+        if (status == 2) {
+            // 先删再插，避免重复
+            userRoleMapper.deleteByUserIdAndRoleId(one.getApplicantId());
+            // 插入授权记录F
+            userRoleMapper.insertRole(one.getApplicantId(), one.getPermId());
+        }
     }
 }

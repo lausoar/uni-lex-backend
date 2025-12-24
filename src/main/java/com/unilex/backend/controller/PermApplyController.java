@@ -13,7 +13,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/perm-apply")
@@ -43,10 +46,19 @@ public class PermApplyController {
 
     /** 后台：分页查询申请 */
     @GetMapping("/page")
-    public R<Page<PermApplyVo>> page(@RequestParam(defaultValue = "1") long current,
-                                     @RequestParam(defaultValue = "10") long size,
-                                     @RequestParam(required = false) Integer status) {
-        return R.ok(permApplyService.pageApply(current, size, status));
+    public R<Page<PermApplyVo>> page(
+            @RequestParam(defaultValue = "1")  long current,
+            @RequestParam(defaultValue = "10") long size,
+            @RequestParam(required = false)    String status) {
+
+        List<Integer> statusList = null;
+        if (status != null && !status.isBlank()) {
+            statusList = Arrays.stream(status.split(","))
+                    .map(String::trim)          // 去掉前后空格
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList());
+        }
+        return R.ok(permApplyService.pageApply(current, size, statusList));
     }
 
     /** 后台：审批 */

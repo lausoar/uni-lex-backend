@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.unilex.backend.entity.PermApply;
 import com.unilex.backend.vo.PermApplyVo;
 
+import java.util.List;
+
 public interface PermApplyService extends IService<PermApply> {
     /** 提交申请 **/
     void submitApply(Long userId, Long permId, String reason);
 
-    Page<PermApplyVo> pageApply(long current, long size, Integer status);
+    Page<PermApplyVo> pageApply(long current, long size, List<Integer> status);
     void audit(Long applyId, Long approverId, Integer status, String approveMsg);
 }

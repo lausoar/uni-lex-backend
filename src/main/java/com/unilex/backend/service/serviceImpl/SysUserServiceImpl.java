@@ -70,9 +70,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
             userRoleService.lambdaUpdate()
                     .eq(SysUserRole::getUserId, user.getId())
                     .remove();
-            rolePermService.lambdaUpdate()
-                    .eq(SysRolePerm::getRoleId, user.getId())
-                    .remove();
+//            rolePermService.lambdaUpdate()
+//                    .eq(SysRolePerm::getRoleId, user.getId())
+//                    .remove();
         }
 
         /* 2. 用户-角色 */
