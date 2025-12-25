@@ -93,4 +93,47 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
             userRoleMapper.insertRole(one.getApplicantId(), one.getPermId());
         }
     }
+
+    @Override
+    public Page<PermApplyVo> pageApplyByUser(Long userId, long current, long size, List<Integer> statusList) {
+        Page<PermApply> p = lambdaQuery()
+                .eq(PermApply::getApplicantId, userId)
+                .in(statusList != null && !statusList.isEmpty(),
+                        PermApply::getStatus, statusList)
+                .orderByDesc(PermApply::getCreatedAt)
+                .page(new Page<>(current, size));
+
+        return (Page<PermApplyVo>) p.convert(po -> {
+            PermApplyVo vo = new PermApplyVo();
+            BeanUtils.copyProperties(po, vo);
+            // 申请人就是当前登录人，controller 已统一赋值，这里跳过
+            // vo.setApplicantName(...);
+
+            // 权限名称
+            SysRole role = roleMapper.selectById(po.getPermId());
+            vo.setPermDesc(role == null ? "-" : role.getDesc());
+
+            // 审批人
+            if (po.getApproverId() != null) {
+                SysUser approver = userService.getById(po.getApproverId());
+                vo.setApproverName(approver == null ? "-" : approver.getUsername());
+            }
+            return vo;
+        });
+    }
+
+    @Override
+    public PermApplyVo singleVo(Long id) {
+        PermApply po = getById(id);
+        PermApplyVo vo = new PermApplyVo();
+        BeanUtils.copyProperties(po, vo);
+
+        SysUser user = userService.getById(po.getApplicantId());
+        vo.setApplicantName(user == null ? "-" : user.getUsername());
+
+        SysRole role = roleMapper.selectById(po.getPermId());
+        vo.setPermDesc(role == null ? "-" : role.getDesc());
+
+        return vo;
+    }
 }

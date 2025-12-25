@@ -13,4 +13,9 @@ public interface PermApplyService extends IService<PermApply> {
 
     Page<PermApplyVo> pageApply(long current, long size, List<Integer> status);
     void audit(Long applyId, Long approverId, Integer status, String approveMsg);
+
+    PermApplyVo singleVo(Long id);
+
+    Page<PermApplyVo> pageApplyByUser(Long userId, long current, long size, List<Integer> statusList);
+
 }
