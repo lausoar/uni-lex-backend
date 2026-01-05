@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -205,5 +206,24 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
                 .sortOrder(e.getSortOrder())
                 .dirId(e.getDirId())
                 .build();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Map<Long, Integer> batchSort(Map<Long, Integer> idOrderMap) {
+        if (idOrderMap == null || idOrderMap.isEmpty()) return Map.of();
+
+        // 1. 批量更新
+        idOrderMap.forEach((termId, newSort) -> {
+            TermEntry po = new TermEntry();
+            po.setId(termId);
+            po.setSortOrder(newSort);
+            termEntryMapper.updateById(po);
+        });
+
+        // 2. 立刻把最新 sortOrder 查出来返回
+        return termEntryMapper.selectBatchIds(idOrderMap.keySet())
+                .stream()
+                .collect(Collectors.toMap(TermEntry::getId, TermEntry::getSortOrder));
     }
 }

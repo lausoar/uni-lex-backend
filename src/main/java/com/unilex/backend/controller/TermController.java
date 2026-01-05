@@ -5,6 +5,7 @@ import com.unilex.backend.common.R;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.TermService;
+import com.unilex.backend.vo.TermBatchSortVo;
 import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -108,5 +110,14 @@ public class TermController {
                 .distinct()
                 .collect(Collectors.toList());
         return R.ok(list);
+    }
+
+    /**
+     * 批量更新术语排序（拖拽排序后一次性保存）
+     */
+    @PostMapping("/batch-sort")
+    @ReqPerm("term:update")
+    public R<Map<Long,Integer>> batchSort(@RequestBody @Validated TermBatchSortVo vo){
+        return R.ok(termService.batchSort(vo.getIdOrderMap()));
     }
 }

@@ -7,6 +7,7 @@ import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TermService extends IService<TermEntry> {
     /**
@@ -21,4 +22,6 @@ public interface TermService extends IService<TermEntry> {
     void updateFlags(Long id, TermFlagsUpdateVo vo);
 
     List<TermRowVo> search(List<String> products, String dataType, String keyword, List<String> projects, String confirm);
+
+    Map<Long, Integer> batchSort(Map<Long, Integer> idOrderMap);
 }
