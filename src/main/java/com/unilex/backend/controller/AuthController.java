@@ -31,9 +31,6 @@ public class AuthController {
     private final CaptchaService captchaService;
     private final SysPermService permService;
 
-    /* ===========================================
-       注册：先校验验证码 -> 再检查账号是否存在 -> 创建用户
-       =========================================== */
     @PostMapping("/register")
     public ResponseEntity<R<Void>> register(@RequestParam String username,
                                             @RequestParam String password,
@@ -41,26 +38,20 @@ public class AuthController {
                                             @RequestParam String captchaCode) {
         log.info("注册请求：username={}, uuid={}", username, captchaUuid);
 
-        // 1. 验证码校验：失败直接 400
         if (!captchaService.validate(captchaUuid, captchaCode)) {
             return ResponseEntity.badRequest()
                     .body(R.error(400, "验证码错误 or 已过期"));
         }
 
-        // 2. 账号是否存在：冲突 409
         if (userService.exist(username)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(R.error(409, "账号已存在"));
         }
 
-        // 3. 创建用户
         userService.register(username, password);
         return ResponseEntity.ok(R.ok(null));
     }
 
-    /* ===========================================
-       登录：先校验验证码 -> 再校验账号密码
-       =========================================== */
     @PostMapping("/login/captcha")
     public ResponseEntity<R<LoginRespVo>> loginWithCaptcha(@RequestParam String username,
                                                            @RequestParam String password,
@@ -68,28 +59,38 @@ public class AuthController {
                                                            @RequestParam String captchaCode) {
         log.info("登录请求：username={}, uuid={}", username, captchaUuid);
 
-        // 1. 验证码校验：失败 400
         if (!captchaService.validate(captchaUuid, captchaCode)) {
             return ResponseEntity.badRequest()
                     .body(R.error(400, "验证码错误 or 已过期"));
         }
 
-        // 2. 账号密码认证
         try {
+            // 1. 验证账号密码
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
-            String token = jwtUtil.generateToken(username);
+
+            // 2. 更新token版本号（关键：挤掉其他设备）
+            userService.incrementTokenVersion(username);
+
+            // 3. 获取最新的token版本号
+            Integer tokenVersion = userService.getTokenVersion(username);
+
+            // 4. 生成携带版本号的token
+            String token = jwtUtil.generateToken(username, tokenVersion);
+
+            // 5. 获取用户信息
             List<String> perms = permService.listUserPerms(username);
             SysUser user = userService.getByUsername(username);
+
             LoginRespVo resp = LoginRespVo.builder()
                     .token(token)
                     .username(username)
                     .perms(perms)
                     .userId(user.getId())
                     .build();
+
             return ResponseEntity.ok(R.ok(resp));
         } catch (BadCredentialsException e) {
-            // 密码错误 401
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(R.error(401, "用户名或密码错误"));
         }

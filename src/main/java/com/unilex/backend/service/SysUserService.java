@@ -13,5 +13,15 @@ public interface SysUserService extends IService<SysUser> {
     SysUser getByUsername(String username);
     /* 新增/编辑都会走到这里 */
     void saveUserWithRoleAndPerm(SysUser user, List<Long> roleIdList, List<String> permCodeList);
+
+    /**
+     * 更新用户token版本号（+1）
+     */
+    void incrementTokenVersion(String username);
+
+    /**
+     * 获取用户当前token版本号
+     */
+    Integer getTokenVersion(String username);
 }
 // 功能模块：用户 Service 接口

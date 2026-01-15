@@ -69,6 +69,8 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setZhCn(vo.getZhCn());
         entry.setEnUs(vo.getEnUs());
         entry.setJaJp(vo.getJaJp());
+        entry.setIsPredefined(0);
+        entry.setConfirmed(0);
         entry.setProjectName(vo.getProjectName());
         entry.setProductSmartom(vo.getProductSmartom() ? 1 : 0);
         entry.setProductEms(vo.getProductEms() ? 1 : 0);

@@ -22,6 +22,9 @@ public class SysUser implements UserDetails {
     /* ======== 冲突根源消除 ======== */
     private Integer status;   // 数据库字段改名
 
+    @TableField("token_version")  // 对应数据库的token_version字段
+    private Integer tokenVersion;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
     @TableField(fill = FieldFill.INSERT_UPDATE)

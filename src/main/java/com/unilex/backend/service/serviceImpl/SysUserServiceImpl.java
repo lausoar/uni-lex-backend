@@ -1,6 +1,7 @@
 package com.unilex.backend.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.SysPerm;
 import com.unilex.backend.entity.SysRolePerm;
@@ -100,6 +101,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
                 rolePermService.saveBatch(rpList);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void incrementTokenVersion(String username) {
+        UpdateWrapper<SysUser> wrapper = new UpdateWrapper<>();
+        wrapper.eq("username", username)
+                .setSql("token_version = token_version + 1");
+        update(wrapper);
+    }
+
+    @Override
+    public Integer getTokenVersion(String username) {
+        SysUser user = getByUsername(username);
+        return user != null ? user.getTokenVersion() : 0;
     }
 }
 // 功能模块：用户 Service 实现
