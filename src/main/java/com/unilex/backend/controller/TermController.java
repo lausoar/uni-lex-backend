@@ -120,4 +120,20 @@ public class TermController {
     public R<Map<Long,Integer>> batchSort(@RequestBody @Validated TermBatchSortVo vo){
         return R.ok(termService.batchSort(vo.getIdOrderMap()));
     }
+
+    /**
+     * 批量确认
+     * @param ids 术语主键列表
+     */
+    @PostMapping("/batch-confirm")
+    public R<Void> batchConfirm(@RequestBody List<Long> ids) {
+        if (ids.isEmpty()) return R.ok(null);
+        // 只更新 confirmed=1，预定义状态保持原样
+        termService.lambdaUpdate()
+                .set(TermEntry::getConfirmed, 1)
+                .set(TermEntry::getIsPredefined, 1)
+                .in(TermEntry::getId, ids)
+                .update();
+        return R.ok(null);
+    }
 }
