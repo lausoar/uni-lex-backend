@@ -23,5 +23,13 @@ public interface SysUserService extends IService<SysUser> {
      * 获取用户当前token版本号
      */
     Integer getTokenVersion(String username);
+
+    /**
+     * 用户自己修改密码
+     * @param username 用户名
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @throws IllegalArgumentException 当旧密码错误或新密码不符合要求时
+     */
+    void editPassword(String username, String oldPassword, String newPassword);
 }
-// 功能模块：用户 Service 接口

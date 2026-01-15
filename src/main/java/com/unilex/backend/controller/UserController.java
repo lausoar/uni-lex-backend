@@ -3,15 +3,20 @@ package com.unilex.backend.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
+import com.unilex.backend.dto.EditPasswordDto;
 import com.unilex.backend.entity.*;
 import com.unilex.backend.service.*;
 import com.unilex.backend.vo.UserPageVo;
 import com.unilex.backend.vo.UserSaveVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -140,5 +145,19 @@ public class UserController {
     @GetMapping("/exists")
     public R<Boolean> exists(@RequestParam String username) {
         return R.ok(userService.exist(username));
+    }
+
+    /**
+     * 用户自主修改密码（需验证原密码）
+     */
+    @PutMapping("/editPassword")
+    public R<Void> editPassword(@AuthenticationPrincipal UserDetails userDetails,
+                                @RequestBody EditPasswordDto dto) {
+        try {
+            userService.editPassword(userDetails.getUsername(), dto.getOldPassword(), dto.getNewPassword());
+            return R.ok(null);
+        } catch (IllegalArgumentException e) {
+            return R.error(400, e.getMessage());
+        }
     }
 }

@@ -117,5 +117,34 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>
         SysUser user = getByUsername(username);
         return user != null ? user.getTokenVersion() : 0;
     }
+
+    /**
+     *
+     * @param username 用户名
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     */
+    @Override
+    @Transactional
+    public void editPassword(String username, String oldPassword, String newPassword) {
+        // 获取用户信息
+        SysUser user = getByUsername(username);
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        // 验证旧密码
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("原密码错误");
+        }
+        // 验证新密码长度
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("新密码至少8位");
+        }
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(newPassword));
+        updateById(user);
+        // 增加token版本，让其他设备下线
+        incrementTokenVersion(username);
+    }
 }
 // 功能模块：用户 Service 实现
