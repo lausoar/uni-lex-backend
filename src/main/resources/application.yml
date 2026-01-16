@@ -43,3 +43,11 @@ mybatis-plus:
 jwt:
   secret: uni-lex-backend-secret-key-must-long-than-256-bits-1234567890
   expiration: 8h   # 过期时间，支持 Duration 表达式
+
+# 验证码配置
+captcha:
+  width: 400              # 背景图宽度
+  height: 200             # 背景图高度
+  puzzle-width: 50        # 拼图块宽度
+  puzzle-height: 50       # 拼图块高度
+  tolerance: 10            # 位置误差容忍度（像素）
