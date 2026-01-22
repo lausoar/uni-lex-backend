@@ -101,18 +101,23 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setIsPredefined(0);
         entry.setConfirmed(0);
 
-        /* ===== 关键：本目录最小 sort_order - 1 ===== */
-        Integer minSort = Optional.ofNullable(
-                lambdaQuery()
-                        .eq(TermEntry::getDirId, vo.getDirId())
-                        .orderByAsc(TermEntry::getSortOrder)
-                        .last("LIMIT 1")
-                        .one()
-        ).map(TermEntry::getSortOrder).orElse(1);
+        // 3. 设置sortOrder - 如果前端传入了则使用，否则使用默认值
+        Integer sortOrder = vo.getSortOrder();
+        if (sortOrder != null) {
+            entry.setSortOrder(sortOrder);
+        } else {
+            // 兼容旧逻辑：如果没有传入sortOrder，则使用本目录最小值减1
+            Integer minSort = Optional.ofNullable(
+                    lambdaQuery()
+                            .eq(TermEntry::getDirId, vo.getDirId())
+                            .orderByAsc(TermEntry::getSortOrder)
+                            .last("LIMIT 1")
+                            .one()
+            ).map(TermEntry::getSortOrder).orElse(1);
+            entry.setSortOrder(minSort - 1);
+        }
 
-        entry.setSortOrder(minSort - 1);
-
-        // 3. 落库
+        //  落库
         save(entry);
         return entry;
     }

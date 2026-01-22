@@ -18,4 +18,7 @@ public interface DirectoryService extends IService<CatDirectory> {
 
     void saveDir(DirSaveVo vo);
     void delDir(Long id);
+
+    Long addDirWithSort(DirAddVo vo, Integer targetSortOrder);
+    void batchUpdateSort(List<DirSaveVo> sortList);
 }

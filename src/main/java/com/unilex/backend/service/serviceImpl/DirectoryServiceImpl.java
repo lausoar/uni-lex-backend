@@ -69,6 +69,12 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
                 if (p != null) p.getChildren().add(n);
             }
         });
+
+        // 对根目录和每个父目录的子目录按 sort_order 排序
+        roots.sort(Comparator.comparingInt(DirTreeVo::getSortOrder));
+        voMap.values().forEach(vo ->
+                vo.getChildren().sort(Comparator.comparingInt(DirTreeVo::getSortOrder))
+        );
         return roots;
     }
 
@@ -162,5 +168,77 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
             throw new IllegalArgumentException("存在子目录，不允许删除");
         }
         removeById(id);
+    }
+
+
+    @Override
+    @Transactional
+    public Long addDirWithSort(DirAddVo vo, Integer targetSortOrder) {
+        /* 1. 基本字段 */
+        CatDirectory po = new CatDirectory();
+        po.setDirNameZh(vo.getName());
+        po.setDirNameEn(vo.getName());
+        po.setDirKey(vo.getName());
+        po.setDirType(vo.getLevel());
+        po.setIsSystem(0);
+
+        /* 2. 计算 parentId */
+        switch (vo.getLevel()) {
+            case 1: po.setParentId(0L); break;
+            case 2: po.setParentId(vo.getLevel1Id()); break;
+            case 3: po.setParentId(vo.getLevel2Id()); break;
+            default: throw new IllegalArgumentException("level 只支持 1/2/3");
+        }
+
+        /* 3. 处理排序 - 关键改进 */
+        Integer finalSortOrder;
+        if (targetSortOrder != null) {
+            // 如果指定了目标位置，将该位置及之后的所有目录排序+1
+            shiftSortOrder(po.getParentId(), po.getDirType(), targetSortOrder);
+            finalSortOrder = targetSortOrder;
+        } else {
+            // 默认添加到最后
+            List<CatDirectory> list = lambdaQuery()
+                    .eq(CatDirectory::getParentId, po.getParentId())
+                    .eq(CatDirectory::getDirType, po.getDirType())
+                    .orderByDesc(CatDirectory::getSortOrder)
+                    .last("LIMIT 1")
+                    .list();
+            Integer maxSort = list.isEmpty() ? 0 : list.get(0).getSortOrder();
+            finalSortOrder = maxSort + 1;
+        }
+        po.setSortOrder(finalSortOrder);
+
+        /* 4. 落库 */
+        dirMapper.insert(po);
+        return po.getId();
+    }
+
+    /**
+     * 将指定位置及之后的目录排序号+1，为新目录腾出位置
+     */
+    private void shiftSortOrder(Long parentId, Integer dirType, Integer startSortOrder) {
+        lambdaUpdate()
+                .eq(CatDirectory::getParentId, parentId)
+                .eq(CatDirectory::getDirType, dirType)
+                .ge(CatDirectory::getSortOrder, startSortOrder)
+                .setSql("sort_order = sort_order + 1")
+                .update();
+    }
+
+    /**
+     * 批量更新目录排序
+     */
+    @Override
+    @Transactional
+    public void batchUpdateSort(List<DirSaveVo> sortList) {
+        if (sortList == null || sortList.isEmpty()) return;
+
+        for (DirSaveVo vo : sortList) {
+            CatDirectory po = new CatDirectory();
+            po.setId(vo.getId());
+            po.setSortOrder(vo.getSortOrder());
+            updateById(po);
+        }
     }
 }

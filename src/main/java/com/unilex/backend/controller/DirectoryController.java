@@ -3,11 +3,13 @@ package com.unilex.backend.controller;
 import com.unilex.backend.common.R;
 import com.unilex.backend.service.DirectoryService;
 import com.unilex.backend.vo.DirAddVo;
+import com.unilex.backend.vo.DirSaveVo;
 import com.unilex.backend.vo.DirTreeVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/dir")
@@ -26,11 +28,36 @@ public class DirectoryController {
     }
 
     /**
-     * 新增目录（可挂在任意级，自动计算排序）
+     * 新增目录（支持指定排序位置）
+     * 修改：使用原有的 /api/dir 接口，通过参数区分
      */
     @PostMapping("")
-    public R<Long> addDir(@RequestBody DirAddVo vo){
-        Long newId = directoryService.addDir(vo);
+    public R<Long> addDir(@RequestBody Map<String, Object> params) {
+        DirAddVo vo = new DirAddVo();
+        vo.setLevel((Integer) params.get("level"));
+        vo.setLevel1Id(params.get("level1Id") != null ? Long.valueOf(params.get("level1Id").toString()) : null);
+        vo.setLevel2Id(params.get("level2Id") != null ? Long.valueOf(params.get("level2Id").toString()) : null);
+        vo.setName((String) params.get("name"));
+
+        // 检查是否包含排序参数
+        Integer targetSortOrder = params.get("targetSortOrder") != null ?
+                Integer.valueOf(params.get("targetSortOrder").toString()) : null;
+
+        Long newId;
+        if (targetSortOrder != null) {
+            newId = directoryService.addDirWithSort(vo, targetSortOrder);
+        } else {
+            newId = directoryService.addDir(vo);
+        }
         return R.ok(newId);
+    }
+
+    /**
+     * 批量更新目录排序
+     */
+    @PostMapping("/batch-update-sort")
+    public R<Void> batchUpdateSort(@RequestBody List<DirSaveVo> sortList) {
+        directoryService.batchUpdateSort(sortList);
+        return R.ok(null);
     }
 }
