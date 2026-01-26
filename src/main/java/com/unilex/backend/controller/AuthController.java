@@ -59,10 +59,11 @@ public class AuthController {
                                                            @RequestParam String captchaCode) {
         log.info("登录请求：username={}, uuid={}", username, captchaUuid);
 
-        if (!captchaService.validate(captchaUuid, captchaCode)) {
-            return ResponseEntity.badRequest()
-                    .body(R.error(400, "验证码错误 or 已过期"));
-        }
+        //图片验证码功能
+//        if (!captchaService.validate(captchaUuid, captchaCode)) {
+//            return ResponseEntity.badRequest()
+//                    .body(R.error(400, "验证码错误 or 已过期"));
+//        }
 
         try {
             // 1. 验证账号密码
