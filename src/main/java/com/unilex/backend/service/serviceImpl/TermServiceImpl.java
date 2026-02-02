@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -218,19 +219,24 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Map<Long, Integer> batchSort(Map<Long, Integer> idOrderMap) {
-        if (idOrderMap == null || idOrderMap.isEmpty()) return Map.of();
+        if (idOrderMap == null || idOrderMap.isEmpty()) {
+            return Map.of();
+        }
 
-        // 1. 批量更新
-        idOrderMap.forEach((termId, newSort) -> {
-            TermEntry po = new TermEntry();
-            po.setId(termId);
-            po.setSortOrder(newSort);
-            termEntryMapper.updateById(po);
-        });
+        // 1. 批量更新（单条 SQL，性能最优）
+        int affected = termEntryMapper
+                .batchUpdateSort(idOrderMap, LocalDateTime.now());
 
-        // 2. 立刻把最新 sortOrder 查出来返回
-        return termEntryMapper.selectBatchIds(idOrderMap.keySet())
+        if (affected == 0) {
+            return Map.of();
+        }
+
+        // 2. 批量查询最新值返回
+        return termEntryMapper.selectBatchSorts(idOrderMap.keySet())
                 .stream()
-                .collect(Collectors.toMap(TermEntry::getId, TermEntry::getSortOrder));
+                .collect(Collectors.toMap(
+                        TermEntry::getId,
+                        TermEntry::getSortOrder
+                ));
     }
 }

@@ -23,5 +23,10 @@ public interface TermService extends IService<TermEntry> {
 
     List<TermRowVo> search(List<String> products, String dataType, String keyword, List<String> projects, String confirm);
 
+    /**
+     * 批量排序
+     * @param idOrderMap key: termId, value: newSortOrder
+     * @return 返回更新后的 id -> sortOrder 映射
+     */
     Map<Long, Integer> batchSort(Map<Long, Integer> idOrderMap);
 }
