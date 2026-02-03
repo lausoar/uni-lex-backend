@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class RolePermController {
                         .id(r.getId())
                         .name(r.getName())
                         .desc(r.getDesc())
-                        .permIdList(rolePermMap.getOrDefault(r.getId(), Collections.emptyList()))
+                        .permIdList(rolePermMap.getOrDefault(r.getId(), List.of()))
                         .createdAt(LocalDateTime.now()) // 表无字段，mock
                         .build()
         ).collect(Collectors.toList());

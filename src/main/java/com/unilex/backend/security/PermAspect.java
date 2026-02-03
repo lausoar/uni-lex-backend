@@ -4,7 +4,7 @@ import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.service.SysPermService;
 import com.unilex.backend.service.TermService;
 import com.unilex.backend.utils.SecurityUtil;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

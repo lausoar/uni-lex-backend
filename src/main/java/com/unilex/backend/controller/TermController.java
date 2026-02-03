@@ -2,7 +2,6 @@ package com.unilex.backend.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.unilex.backend.common.R;
-import com.unilex.backend.dto.TermSearchRequest;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.TermService;
@@ -86,17 +85,15 @@ public class TermController {
     }
 
 
-    @PostMapping("/search")  // 改为 POST
-    public R<List<TermRowVo>> search(@RequestBody TermSearchRequest req) {
-        System.out.println("Controller 收到 products: " + req.getProducts()); // 现在应该有值了
-
-        return R.ok(termService.search(
-                req.getProducts(),
-                req.getDataType(),
-                req.getKeyword(),
-                req.getProjects(),
-                req.getConfirm()
-        ));
+    @GetMapping("/search")
+    public R<List<TermRowVo>> search(
+            @RequestParam(required = false) List<String> products,
+            @RequestParam(required = false) String dataType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> projects,
+            @RequestParam(defaultValue = "all") String confirm) {
+        List<TermRowVo> list = termService.search(products, dataType, keyword, projects, confirm);
+        return R.ok(list);
     }
 
     @GetMapping("/projects")

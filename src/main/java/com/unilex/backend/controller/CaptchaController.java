@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
-public class UserCaptchaController {
+public class CaptchaController {
 
     private final CaptchaService captchaService;
     private final CaptchaRecordsService captchaRecordsService;

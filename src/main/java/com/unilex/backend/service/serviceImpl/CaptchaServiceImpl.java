@@ -48,22 +48,16 @@ public class CaptchaServiceImpl implements CaptchaService {
     @Override
     public boolean validate(String uuid, String userInput) {
         if (uuid == null || userInput == null) return false;
-
-        return captchaMapper.valid(uuid, LocalDateTime.now())
-                .map(captcha -> {
-                    boolean ok = captcha.getCode()
-                            .equalsIgnoreCase(userInput.trim());
-                    log.info("库中码={}, 用户输入={}, 比对结果={}",
-                            captcha.getCode(), userInput.trim(), ok);
-                    log.warn("校验结果={}", ok);
-                    return ok;
-                })
-                .orElseGet(() -> {
-                    log.warn("验证码已过期或 uuid 不存在");
-                    return false;
-                });
+        Optional<Captcha> one = captchaMapper.valid(uuid, LocalDateTime.now());
+        if (one.isEmpty()) {
+            log.warn("验证码已过期或 uuid 不存在");
+            return false;
+        }
+        boolean ok = one.get().getCode().equalsIgnoreCase(userInput.trim());
+        log.info("库中码={}, 用户输入={}, 比对结果={}", one.get().getCode(), userInput.trim(), ok);
+        log.warn("校验结果={}", ok);
+        return ok;
     }
-
 
     // 每 10 分钟清一次过期验证码
     @Scheduled(fixedDelay = 10 * 60 * 1000)

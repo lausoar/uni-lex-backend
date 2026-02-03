@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -146,71 +145,53 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
                                   List<String> projects,
                                   String confirm) {
 
-        // 调试日志（保留）
-        System.out.println("收到参数 - products: " + products + ", confirm: " + confirm);
-
         LambdaQueryWrapper<TermEntry> qw = new LambdaQueryWrapper<>();
 
-        /* 1. 关键字（OR） */
+        /* 1. 关键字 */
         if (keyword != null && !keyword.trim().isEmpty()) {
-            String kw = keyword.trim();
-            qw.and(w -> w.like(TermEntry::getShortKey, kw)
-                    .or().like(TermEntry::getZhCn, kw)
-                    .or().like(TermEntry::getEnUs, kw)
-                    .or().like(TermEntry::getJaJp, kw));
+            qw.and(w -> w.like(TermEntry::getShortKey, keyword)
+                    .or().like(TermEntry::getZhCn, keyword)
+                    .or().like(TermEntry::getEnUs, keyword)
+                    .or().like(TermEntry::getJaJp, keyword));
         }
 
-        /* 2. 产品（AND 关系 —— 与“上面代码”完全一致） */
+        /* 2. 产品（AND 关系） */
         if (products != null && !products.isEmpty()) {
             qw.and(w -> {
                 for (String p : products) {
-                    if ("SmartOM".equalsIgnoreCase(p)) {
-                        w.eq(TermEntry::getProductSmartom, 1);
-                    }
-                    if ("EMS".equalsIgnoreCase(p)) {
-                        w.eq(TermEntry::getProductEms, 1);
-                    }
-                    if ("OnePoint".equalsIgnoreCase(p)) {
-                        w.eq(TermEntry::getProductOnepoint, 1);
-                    }
+                    if ("SmartOM".equalsIgnoreCase(p)) w.eq(TermEntry::getProductSmartom, 1);
+                    if ("EMS".equalsIgnoreCase(p))     w.eq(TermEntry::getProductEms, 1);
+                    if ("OnePoint".equalsIgnoreCase(p))w.eq(TermEntry::getProductOnepoint, 1);
                 }
             });
         }
 
-        /* 3. 数据类型（dirId） */
+        /* 3. 数据类型（用 dirId 模拟） */
         if (dataType != null && !dataType.trim().isEmpty()) {
-            try {
-                qw.eq(TermEntry::getDirId, Long.valueOf(dataType.trim()));
-            } catch (NumberFormatException ignored) {
-                // 非法值直接忽略，不影响整体查询
-            }
+            qw.eq(TermEntry::getDirId, dataType);
         }
 
         /* 4. 所属项目 */
-        if (projects != null && !projects.isEmpty()) {
+        if (projects != null && !projects.isEmpty()) {   // 只加非空判断
             qw.in(TermEntry::getProjectName, projects);
         }
 
         /* 5. 确认状态 */
-        if ("pending".equals(confirm)) {
-            qw.eq(TermEntry::getConfirmed, 0);
-        } else if ("confirmed".equals(confirm)) {
-            qw.eq(TermEntry::getConfirmed, 1);
+        switch (confirm) {
+            case "pending":
+                qw.eq(TermEntry::getConfirmed, 0);
+                break;
+            case "confirmed":
+                qw.eq(TermEntry::getConfirmed, 1);
+                break;
+            case "all":
+            default:
+                break;
         }
-        // confirm = all / null → 不加条件
 
-        /* 6. 排序 */
         qw.orderByAsc(TermEntry::getSortOrder);
-
-        // 调试 SQL（MyBatis-Plus 条件片段）
-        System.out.println("SQL Segment: " + qw.getCustomSqlSegment());
-
-        return list(qw)
-                .stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
+        return list(qw).stream().map(this::convert).collect(Collectors.toList());
     }
-
     /* ---------------- 私有工具 ---------------- */
     private int boolToInt(Boolean b) {
         return Boolean.TRUE.equals(b) ? 1 : 0;
@@ -239,7 +220,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
     @Transactional(rollbackFor = Exception.class)
     public Map<Long, Integer> batchSort(Map<Long, Integer> idOrderMap) {
         if (idOrderMap == null || idOrderMap.isEmpty()) {
-            return Collections.emptyMap();
+            return Map.of();
         }
 
         // 1. 批量更新（单条 SQL，性能最优）
@@ -247,7 +228,7 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
                 .batchUpdateSort(idOrderMap, LocalDateTime.now());
 
         if (affected == 0) {
-            return Collections.emptyMap();
+            return Map.of();
         }
 
         // 2. 批量查询最新值返回
