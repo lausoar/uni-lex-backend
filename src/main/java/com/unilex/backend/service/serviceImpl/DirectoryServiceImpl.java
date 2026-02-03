@@ -50,7 +50,7 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
                             v.setName("zh".equals(lang) ? d.getDirNameZh() : d.getDirNameEn());
                             v.setChildren(new ArrayList<>());
                             /*  关键：只要有术语就挂 termList，不管几级 */
-                            List<TermEntry> tList = termMap.getOrDefault(d.getId(), List.of());
+                            List<TermEntry> tList = termMap.getOrDefault(d.getId(), Collections.emptyList());
                             if (!tList.isEmpty()) {
                                 v.setTermList(tList.stream()
                                         .sorted(Comparator.comparingInt(TermEntry::getSortOrder))

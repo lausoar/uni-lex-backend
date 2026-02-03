@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -132,7 +133,7 @@ public class RoleController {
         SysUser user = userService.lambdaQuery()
                 .eq(SysUser::getUsername, userDetails.getUsername())
                 .one();
-        if (user == null) return R.ok(List.of());
+        if (user == null) return R.ok(Collections.emptyList());
 
         List<Long> roleIds = userRoleMapper.selectRoleIdsByUserId(user.getId());
         return R.ok(roleIds);
