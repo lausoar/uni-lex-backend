@@ -74,9 +74,9 @@ public class PermApplyController {
             @RequestParam(required = false)    String status) {
 
         List<Integer> statusList = null;
-        if (status != null && !status.isBlank()) {
+        if (status != null && !status.trim().isEmpty()) {
             statusList = Arrays.stream(status.split(","))
-                    .map(String::trim)          // 去掉前后空格
+                    .map(String::trim)
                     .map(Integer::valueOf)
                     .collect(Collectors.toList());
         }
@@ -112,7 +112,7 @@ public class PermApplyController {
         if (me == null) return R.error(400, "用户不存在");
 
         List<Integer> statusList = null;
-        if (status != null && !status.isBlank()) {
+        if (status != null && !status.trim().isEmpty()) {
             statusList = Arrays.stream(status.split(","))
                     .map(String::trim)
                     .map(Integer::valueOf)
