@@ -38,10 +38,10 @@ public class AuthController {
                                             @RequestParam String captchaCode) {
         log.info("注册请求：username={}, uuid={}", username, captchaUuid);
 
-        if (!captchaService.validate(captchaUuid, captchaCode)) {
-            return ResponseEntity.badRequest()
-                    .body(R.error(400, "验证码错误 or 已过期"));
-        }
+//        if (!captchaService.validate(captchaUuid, captchaCode)) {
+//            return ResponseEntity.badRequest()
+//                    .body(R.error(400, "验证码错误 or 已过期"));
+//        }
 
         if (userService.exist(username)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)

@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "/api/auth/captchas").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()
+                .antMatchers("/api/auto-provision").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
