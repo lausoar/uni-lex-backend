@@ -20,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 系统用户服务实现
+ * <p>提供用户注册、查询、密码修改、角色权限绑定及token版本管理</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser>

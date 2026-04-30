@@ -1,4 +1,4 @@
-package com.unilex.backend.mapper;
+﻿package com.unilex.backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.unilex.backend.entity.SysPerm;
@@ -7,9 +7,15 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
+/**
+ * 系统权限Mapper，提供权限编码及名称的查询操作。
+ */
 @Mapper
 public interface SysPermMapper extends BaseMapper<SysPerm> {
 
+    /**
+     * 根据用户名查询其拥有的所有权限编码列表。
+     */
     @Select("SELECT DISTINCT p.perm_code " +
             "FROM sys_user u " +
             "JOIN sys_user_role ur ON u.id = ur.user_id " +
@@ -18,6 +24,9 @@ public interface SysPermMapper extends BaseMapper<SysPerm> {
             "WHERE u.username = #{username}")
     List<String> listCodesByUsername(String username);
 
+    /**
+     * 根据用户名查询其拥有的所有权限名称列表。
+     */
     @Select("SELECT DISTINCT p.perm_name " +
             "FROM sys_user u " +
             "JOIN sys_user_role ur ON u.id = ur.user_id " +

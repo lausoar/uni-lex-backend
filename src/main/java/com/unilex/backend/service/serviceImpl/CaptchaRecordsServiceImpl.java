@@ -21,6 +21,10 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * 滑块验证码服务实现
+ * <p>负责生成拼图滑块验证码、校验用户拖拽位置及定时清理过期记录</p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

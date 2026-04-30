@@ -7,10 +7,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * 全局异常处理器，统一处理各类异常并返回标准化响应
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * 处理数据库唯一键冲突异常
+     *
+     * @param e 唯一键冲突异常
+     * @return 冲突响应结果
+     */
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public R<Void> handleDuplicateKey(DuplicateKeyException e) {
@@ -19,6 +28,12 @@ public class GlobalExceptionHandler {
         return R.conflict(e.getMessage());
     }
 
+    /**
+     * 处理通用系统异常
+     *
+     * @param e 系统异常
+     * @return 错误响应结果
+     */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public R<Void> handleException(Exception e) {
@@ -26,6 +41,12 @@ public class GlobalExceptionHandler {
         return R.error(500, e.getMessage());
     }
 
+    /**
+     * 处理非法参数异常
+     *
+     * @param e 非法参数异常
+     * @return 错误响应结果
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public R<Void> handleIllegal(IllegalArgumentException e) {

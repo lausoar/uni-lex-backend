@@ -18,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 目录分类服务实现
+ * <p>管理三级目录树结构，支持树形组装、排序及与术语的关联展示</p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,10 +37,11 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
         List<TermEntry> terms = termMapper.selectList(null);
         log.info(">>> dirs={}, terms={}", dirs.size(), terms.size());
 
+        /* 按目录ID分组术语，便于挂载 */
         Map<Long, List<TermEntry>> termMap = terms.stream()
                 .collect(Collectors.groupingBy(TermEntry::getDirId));
 
-        /* 3. 构造 VO */
+        /* 3. 构造 VO —— 每个目录映射为一个树节点 */
         Map<Long, DirTreeVo> voMap = dirs.stream()
                 .collect(Collectors.toMap(CatDirectory::getId,
                         d -> {
@@ -60,7 +65,7 @@ public class DirectoryServiceImpl extends ServiceImpl<CatDirectoryMapper, CatDir
                             return v;
                         }));
 
-        /* 4. 拼树 */
+        /* 4. 拼树 —— 将子节点挂载到父节点下 */
         List<DirTreeVo> roots = new ArrayList<>();
         voMap.values().forEach(n -> {
             if (n.getParentId() == 0L) roots.add(n);

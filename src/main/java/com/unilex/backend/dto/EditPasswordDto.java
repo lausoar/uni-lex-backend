@@ -1,4 +1,4 @@
-package com.unilex.backend.dto;
+﻿package com.unilex.backend.dto;
 
 import lombok.Data;
 
@@ -7,6 +7,8 @@ import lombok.Data;
  */
 @Data
 public class EditPasswordDto {
+    /** 旧密码 */
     private String oldPassword;
+    /** 新密码 */
     private String newPassword;
 }

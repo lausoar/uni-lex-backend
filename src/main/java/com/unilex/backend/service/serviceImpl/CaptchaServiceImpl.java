@@ -18,6 +18,10 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * 图形验证码服务实现
+ * <p>负责生成普通图形验证码、校验用户输入及定时清理过期记录</p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,14 +32,17 @@ public class CaptchaServiceImpl implements CaptchaService {
     @Override
     @Transactional
     public CaptchaVo generate() {
+        // 1. 生成随机验证码图片
         CaptchaGenerator.Captcha gen = CaptchaGenerator.generate();
         String uuid = UUID.randomUUID().toString();
+        // 2. 持久化验证码记录（5分钟有效期）
         Captcha po = new Captcha();
         po.setUuid(uuid);
         po.setCode(gen.code);
         po.setExpireTime(LocalDateTime.now().plusMinutes(5));
         captchaMapper.insert(po);
 
+        // 3. 图片转Base64返回
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(gen.image, "png", os);
             String base64 = Base64.getEncoder().encodeToString(os.toByteArray());

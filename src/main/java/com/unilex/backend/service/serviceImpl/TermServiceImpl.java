@@ -1,11 +1,9 @@
 package com.unilex.backend.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.mapper.TermEntryMapper;
-import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.TermService;
 import com.unilex.backend.utils.SecurityUtil;
 import com.unilex.backend.vo.TermFlagsUpdateVo;
@@ -21,6 +19,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * 术语条目服务实现
+ * <p>提供术语增删改查、多维度搜索、批量排序及状态标记维护</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> implements TermService {

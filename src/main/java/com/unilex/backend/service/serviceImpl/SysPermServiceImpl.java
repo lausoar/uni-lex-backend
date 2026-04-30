@@ -1,10 +1,8 @@
 package com.unilex.backend.service.serviceImpl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.SysPerm;
 import com.unilex.backend.mapper.SysPermMapper;
-import com.unilex.backend.mapper.SysUserMapper;
 import com.unilex.backend.service.SysPermService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -13,12 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 系统权限服务实现
+ * <p>提供用户权限查询（带缓存）、权限校验及权限维护功能</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> implements SysPermService{
 
     private final SysPermMapper permMapper;
-    private final SysUserMapper userMapper;
 
     @Override
     @Cacheable(value = "perm", key = "#username")
@@ -45,7 +46,7 @@ public class SysPermServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> impl
     @Override
     @Transactional
     public void savePerm(SysPerm po) {
-        // 唯一校验
+        // 唯一校验：permCode 不能重复
         if (lambdaQuery().eq(SysPerm::getPermCode, po.getPermCode())
                 .ne(po.getId() != null, SysPerm::getId, po.getId())
                 .count() > 0) {

@@ -21,6 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 权限申请服务实现
+ * <p>处理用户权限申请提交、审批流转及申请记录分页查询</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply>
