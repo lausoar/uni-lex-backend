@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.security;
+package com.unilex.backend.security;
 
 import java.lang.annotation.*;
 

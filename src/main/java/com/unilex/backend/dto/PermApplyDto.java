@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.dto;
+package com.unilex.backend.dto;
 
 import lombok.Data;
 

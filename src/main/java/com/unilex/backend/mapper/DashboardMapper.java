@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.mapper;
+package com.unilex.backend.mapper;
 
 import com.unilex.backend.vo.DashboardVo;
 import org.apache.ibatis.annotations.Mapper;

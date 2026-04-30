@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.entity;
+package com.unilex.backend.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.config;
+package com.unilex.backend.config;
 
 import com.unilex.backend.security.JwtAuthenticationEntryPoint;
 import com.unilex.backend.security.JwtAuthenticationFilter;

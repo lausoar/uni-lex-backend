@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.security;
+package com.unilex.backend.security;
 
 import com.unilex.backend.service.SysUserService;
 import com.unilex.backend.utils.JwtUtil;

@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.security;
+package com.unilex.backend.security;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

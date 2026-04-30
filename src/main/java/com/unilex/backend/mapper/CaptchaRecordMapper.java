@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.mapper;
+package com.unilex.backend.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.unilex.backend.entity.CaptchaRecord;

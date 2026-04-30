@@ -1,4 +1,4 @@
-﻿package com.unilex.backend.security;
+package com.unilex.backend.security;
 
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.service.SysPermService;
