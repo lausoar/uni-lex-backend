@@ -29,7 +29,7 @@ public class AutoProvisionController {
      * OpenClaw调用入口
      */
     @PostMapping
-    public R<Map<String, Object>> autoProvision(@RequestBody Map<String, Object> req) {
+    public R<String> autoProvision(@RequestBody Map<String, Object> req) {
 
         String name = (String) req.get("name");              // 张三
         String permission = (String) req.get("permission");  // 管理员/编辑/只读
@@ -96,7 +96,9 @@ public class AutoProvisionController {
         result.put("role", roleName);
         result.put("isNew", isNew);
 
-        return R.ok(result);
+        String resultText = "用户名：" + username + "\n密码：" + "taoke123";
+
+        return R.ok(resultText);
     }
 
     /**
