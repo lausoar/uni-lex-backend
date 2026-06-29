@@ -47,6 +47,11 @@ jwt:
   secret: uni-lex-backend-secret-key-must-long-than-256-bits-1234567890
   expiration: 8h   # 过期时间，支持 Duration 表达式
 
+# ========== 禁用 Swagger（来自 aj-captcha 传递依赖） ==========
+springfox:
+  documentation:
+    enabled: false
+
 # 验证码配置
 captcha:
   width: 400              # 背景图宽度

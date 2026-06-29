@@ -81,19 +81,31 @@ public class SecurityConfig {
                 .and()
                 // 配置请求授权规则
                 .authorizeRequests()
-                // 认证相关接口允许匿名访问
-                .antMatchers(
-                        "/api/auth/captchas",
-                        "/api/auth/login"
-                ).permitAll()
-                // GET 请求获取验证码允许匿名访问
+
+                // ====== 公开接口（无需认证） ======
+
+                // 1. 获取验证码 & 登录（仅特定路径，不要用 /api/auth/** 通配）
                 .antMatchers(HttpMethod.GET, "/api/auth/captchas").permitAll()
-                // auth 模块下所有接口允许匿名访问
-                .antMatchers("/api/auth/**").permitAll()
-                // user 模块下所有接口允许匿名访问
-                .antMatchers("/api/user/**").permitAll()
-                // 自动开通接口允许匿名访问
+                .antMatchers("/api/auth/login").permitAll()
+
+                // 2. 自动开通（OpenClaw 回调）
                 .antMatchers("/api/auto-provision").permitAll()
+
+                // ====== 受保护接口（必须登录） ======
+
+                // 用户管理 CRUD 需要认证 —— 避免被任何人任意增删改用户
+                .antMatchers("/api/user/**").authenticated()
+
+                // auth 模块中非公开的接口（如 register）需要认证
+                .antMatchers("/api/auth/**").authenticated()
+
+                // Swagger/Knife4j 接口文档 —— 生产环境禁止访问
+                .antMatchers(
+                        "/swagger-ui.html", "/swagger-ui/**",
+                        "/doc.html", "/v2/api-docs", "/v3/api-docs",
+                        "/swagger-resources/**", "/webjars/**"
+                ).denyAll()
+
                 // 其他所有请求需要认证
                 .anyRequest().authenticated()
                 .and()
@@ -106,28 +118,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                // 关闭 csrf
-//                .csrf().disable()
-//
-//                // 不使用 session
-//                .sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-//
-//                // 所有请求全部放行
-//                .authorizeRequests()
-//                .anyRequest().permitAll()
-//
-//                // 仍然可以保留 jwtFilter（但它不会拦）
-//                .and()
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
-
 
 }
