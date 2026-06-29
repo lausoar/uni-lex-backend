@@ -25,6 +25,11 @@ spring:
     user:
       name: none   # 禁用 SpringBoot 默认生成用户
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 # ========== MyBatis-Plus 补充 ==========
 mybatis-plus:
   # XML 文件位置

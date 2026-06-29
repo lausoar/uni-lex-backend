@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.unilex.backend.entity.TermEntry;
 import com.unilex.backend.mapper.TermEntryMapper;
 import com.unilex.backend.service.TermService;
+import com.unilex.backend.service.TermVersionLogService;
 import com.unilex.backend.utils.SecurityUtil;
 import com.unilex.backend.vo.TermFlagsUpdateVo;
 import com.unilex.backend.vo.TermRowVo;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> implements TermService {
 
     private final TermEntryMapper termEntryMapper;
+    private final TermVersionLogService versionLogService;
 
     @Override
     public List<TermRowVo> listTerm(Long dirId) {
@@ -80,6 +82,18 @@ public class TermServiceImpl extends ServiceImpl<TermEntryMapper, TermEntry> imp
         entry.setProductEms(vo.getProductEms() ? 1 : 0);
         entry.setProductOnepoint(vo.getProductOnepoint() ? 1 : 0);
         termEntryMapper.updateById(entry);
+
+        // 记录版本变更（如果 projectName 变了）
+        if (vo.getProjectName() != null && !vo.getProjectName().isEmpty()) {
+            String oldProjectName = exist.getProjectName();
+            String newProjectName = vo.getProjectName();
+            if (!newProjectName.equals(oldProjectName)) {
+                versionLogService.logVersionChange(
+                        id, exist.getDirId(), exist.getShortKey(),
+                        oldProjectName != null ? oldProjectName : "",
+                        newProjectName, "UPDATE");
+            }
+        }
     }
 
     @Override
