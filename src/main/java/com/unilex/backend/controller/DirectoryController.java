@@ -1,6 +1,7 @@
 package com.unilex.backend.controller;
 
 import com.unilex.backend.common.R;
+import com.unilex.backend.security.OpLog;
 import com.unilex.backend.service.DirectoryService;
 import com.unilex.backend.vo.DirAddVo;
 import com.unilex.backend.vo.DirSaveVo;
@@ -29,9 +30,9 @@ public class DirectoryController {
 
     /**
      * 新增目录（支持指定排序位置）
-     * 修改：使用原有的 /api/dir 接口，通过参数区分
      */
     @PostMapping("")
+    @OpLog(module = "directory", operation = "CREATE", description = "新增目录")
     public R<Long> addDir(@RequestBody Map<String, Object> params) {
         DirAddVo vo = new DirAddVo();
         vo.setLevel((Integer) params.get("level"));
@@ -39,7 +40,6 @@ public class DirectoryController {
         vo.setLevel2Id(params.get("level2Id") != null ? Long.valueOf(params.get("level2Id").toString()) : null);
         vo.setName((String) params.get("name"));
 
-        // 检查是否包含排序参数
         Integer targetSortOrder = params.get("targetSortOrder") != null ?
                 Integer.valueOf(params.get("targetSortOrder").toString()) : null;
 
@@ -56,6 +56,7 @@ public class DirectoryController {
      * 批量更新目录排序
      */
     @PostMapping("/batch-update-sort")
+    @OpLog(module = "directory", operation = "UPDATE", description = "批量排序目录")
     public R<Void> batchUpdateSort(@RequestBody List<DirSaveVo> sortList) {
         directoryService.batchUpdateSort(sortList);
         return R.ok(null);

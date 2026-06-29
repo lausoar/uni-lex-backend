@@ -86,7 +86,10 @@ public class SecurityConfig {
 
                 // 1. 获取验证码 & 登录（仅特定路径，不要用 /api/auth/** 通配）
                 .antMatchers(HttpMethod.GET, "/api/auth/captchas").permitAll()
+                .antMatchers("/api/auth/captchas/verify").permitAll()
                 .antMatchers("/api/auth/login").permitAll()
+                .antMatchers("/api/auth/login/captcha").permitAll()
+                .antMatchers("/api/auth/register").permitAll()
 
                 // 2. 自动开通（OpenClaw 回调）
                 .antMatchers("/api/auto-provision").permitAll()

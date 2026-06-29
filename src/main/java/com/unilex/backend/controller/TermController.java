@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.unilex.backend.common.R;
 import com.unilex.backend.dto.TermSearchRequest;
 import com.unilex.backend.entity.TermEntry;
+import com.unilex.backend.security.OpLog;
 import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.TermService;
 import com.unilex.backend.vo.TermBatchSortVo;
@@ -36,6 +37,7 @@ public class TermController {
 
     @PutMapping("/{id}")
     @ReqPerm("term:update")
+    @OpLog(module = "term", operation = "UPDATE", description = "修改术语")
     public R<Void> update(@PathVariable Long id,
                           @RequestBody TermRowVo vo) {
         termService.updateTerm(id, vo);
@@ -44,6 +46,7 @@ public class TermController {
 
     @DeleteMapping("/{id}")
     @ReqPerm("term:delete")
+    @OpLog(module = "term", operation = "DELETE", description = "删除术语")
     public R<Void> delete(@PathVariable Long id) {
         termService.removeById(id);
         return R.ok(null);
@@ -54,6 +57,7 @@ public class TermController {
      */
     @PostMapping
     @ReqPerm("term:add")
+    @OpLog(module = "term", operation = "CREATE", description = "新增术语")
     public R<TermRowVo> add(@RequestBody TermRowVo vo) {
         TermEntry newEntry = termService.addTerm(vo);
         // 把刚插入的实体回显给前端（含主键 id）
@@ -79,6 +83,7 @@ public class TermController {
      */
     @PatchMapping("/{id}/flags")
     @ReqPerm("term:confirm")
+    @OpLog(module = "term", operation = "UPDATE", description = "更新术语状态标记")
     public R<Void> updateFlags(@PathVariable Long id,
                                @RequestBody @Validated TermFlagsUpdateVo vo) {
         termService.updateFlags(id, vo);
@@ -86,9 +91,9 @@ public class TermController {
     }
 
 
-    @PostMapping("/search")  // 改为 POST
+    @PostMapping("/search")
     public R<List<TermRowVo>> search(@RequestBody TermSearchRequest req) {
-        System.out.println("Controller 收到 products: " + req.getProducts()); // 现在应该有值了
+        System.out.println("Controller 收到 products: " + req.getProducts());
 
         return R.ok(termService.search(
                 req.getProducts(),
@@ -101,9 +106,7 @@ public class TermController {
 
     @GetMapping("/projects")
     public R<List<String>> allProjects() {
-        // 查询所有已确认的术语，把 project_name 去空、去重、排序
         List<String> list = termService.lambdaQuery()
-//                .eq(TermEntry::getConfirmed, 1)
                 .isNotNull(TermEntry::getProjectName)
                 .ne(TermEntry::getProjectName, "")
                 .orderByAsc(TermEntry::getProjectName)
@@ -120,6 +123,7 @@ public class TermController {
      */
     @PostMapping("/batch-sort")
     @ReqPerm("term:update")
+    @OpLog(module = "term", operation = "UPDATE", description = "批量排序术语")
     public R<Map<Long,Integer>> batchSort(@RequestBody @Validated TermBatchSortVo vo){
         return R.ok(termService.batchSort(vo.getIdOrderMap()));
     }
@@ -129,9 +133,9 @@ public class TermController {
      * @param ids 术语主键列表
      */
     @PostMapping("/batch-confirm")
+    @OpLog(module = "term", operation = "UPDATE", description = "批量确认术语")
     public R<Void> batchConfirm(@RequestBody List<Long> ids) {
         if (ids.isEmpty()) return R.ok(null);
-        // 只更新 confirmed=1，预定义状态保持原样
         termService.lambdaUpdate()
                 .set(TermEntry::getConfirmed, 1)
                 .set(TermEntry::getIsPredefined, 1)

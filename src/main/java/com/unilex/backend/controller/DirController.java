@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.CatDirectory;
+import com.unilex.backend.security.OpLog;
 import com.unilex.backend.service.DirectoryService;
 import com.unilex.backend.vo.DirPageVo;
 import com.unilex.backend.vo.DirSaveVo;
@@ -65,14 +66,17 @@ public class DirController {
         return R.ok(voPage);
     }
 
-    /* 3. 新增 or 编辑 */
+    /* 3. 新增 */
     @PostMapping
+    @OpLog(module = "directory", operation = "CREATE", description = "新增目录")
     public R<Void> add(@RequestBody DirSaveVo vo) {
         dirService.saveDir(vo);
         return R.ok(null);
     }
 
+    /* 编辑 */
     @PutMapping("/{id}")
+    @OpLog(module = "directory", operation = "UPDATE", description = "修改目录")
     public R<Void> upd(@PathVariable Long id, @RequestBody DirSaveVo vo) {
         vo.setId(id);
         dirService.saveDir(vo);
@@ -81,6 +85,7 @@ public class DirController {
 
     /* 4. 删除 */
     @DeleteMapping("/{id}")
+    @OpLog(module = "directory", operation = "DELETE", description = "删除目录")
     public R<Void> del(@PathVariable Long id) {
         dirService.delDir(id);
         return R.ok(null);

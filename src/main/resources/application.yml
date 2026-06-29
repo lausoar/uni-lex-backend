@@ -6,13 +6,13 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 与 docker-compose 里映射的端口保持一致
-    url: jdbc:mysql://rm-uf674co8dy5525n60ho.mysql.rds.aliyuncs.com:3306/uni_lex?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
-#    url: jdbc:mysql://localhost:3306/demo?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+#    url: jdbc:mysql://rm-uf674co8dy5525n60ho.mysql.rds.aliyuncs.com:3306/uni_lex?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/demo?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
 #    url: jdbc:mysql://8.tcp.cpolar.top:10393/demo?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: liuxiang
-    password: liuxiang2026
-#    username: root
-#    password: 123456
+#    username: liuxiang
+#    password: liuxiang2026
+    username: root
+    password: 123456
     # 连接池常用参数（hikari 默认）
     hikari:
       minimum-idle: 5
