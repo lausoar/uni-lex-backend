@@ -31,26 +31,10 @@ public class AuthController {
     private final CaptchaService captchaService;
     private final SysPermService permService;
 
-    @PostMapping("/register")
-    public ResponseEntity<R<Void>> register(@RequestParam String username,
-                                            @RequestParam String password,
-                                            @RequestParam String captchaUuid,
-                                            @RequestParam String captchaCode) {
-        log.info("注册请求：username={}, uuid={}", username, captchaUuid);
-
-//        if (!captchaService.validate(captchaUuid, captchaCode)) {
-//            return ResponseEntity.badRequest()
-//                    .body(R.error(400, "验证码错误 or 已过期"));
-//        }
-
-        if (userService.exist(username)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(R.error(409, "账号已存在"));
-        }
-
-        userService.register(username, password);
-        return ResponseEntity.ok(R.ok(null));
-    }
+    /*
+     * 公开注册入口已关闭：自助注册可让任何人拿到登录态，进而攻击仅校验"已登录"的接口。
+     * 账号开通只保留两条受控通道：管理后台用户管理（user:manage）、OpenClaw 自动开通（共享密钥）。
+     */
 
     @PostMapping("/login/captcha")
     public ResponseEntity<R<LoginRespVo>> loginWithCaptcha(@RequestParam String username,

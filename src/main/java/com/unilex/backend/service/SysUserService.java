@@ -19,13 +19,6 @@ public interface SysUserService extends IService<SysUser> {
     boolean exist(String username);
 
     /**
-     * 用户注册
-     * @param username 用户名
-     * @param rawPassword 原始密码（明文）
-     */
-    void register(String username, String rawPassword);
-
-    /**
      * 根据用户名查询用户
      * @param username 用户名
      * @return 用户实体（不存在返回null）

@@ -6,6 +6,7 @@ import com.unilex.backend.common.R;
 import com.unilex.backend.entity.SysPerm;
 import com.unilex.backend.entity.SysRole;
 import com.unilex.backend.entity.SysRolePerm;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.SysPermService;
 import com.unilex.backend.service.SysRolePermService;
 import com.unilex.backend.service.SysRoleService;
@@ -31,6 +32,7 @@ public class RolePermController {
 
     /* 1. 角色分页（含已有权限 id 列表） */
     @GetMapping("/roles")
+    @ReqPerm("role:perm")
     public R<Page<RolePermPageVo>> roles(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
@@ -70,6 +72,7 @@ public class RolePermController {
 
     /* 2. 权限树（一次性查出，前端自行拼父子） */
     @GetMapping("/perms")
+    @ReqPerm("role:perm")
     public R<List<PermTreeVo>> perms() {
         List<SysPerm> list = permService.list();
         List<PermTreeVo> tree = list.stream()
@@ -85,6 +88,7 @@ public class RolePermController {
 
     /* 3. 保存角色权限 */
     @PutMapping("/{roleId}")
+    @ReqPerm("role:perm")
     public R<Void> savePerms(@PathVariable Long roleId, @RequestBody List<Long> permIdList) {
         rolePermService.lambdaUpdate().eq(SysRolePerm::getRoleId, roleId).remove();
         if (permIdList != null && !permIdList.isEmpty()) {
@@ -93,6 +97,8 @@ public class RolePermController {
                     .collect(Collectors.toList());
             rolePermService.saveBatch(list);
         }
+        // 角色-权限关系变更影响该角色下所有用户，全量失效
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 }

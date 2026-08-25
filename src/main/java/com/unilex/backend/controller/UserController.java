@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
 import com.unilex.backend.dto.EditPasswordDto;
 import com.unilex.backend.entity.*;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.*;
 import com.unilex.backend.vo.UserPageVo;
 import com.unilex.backend.vo.UserSaveVo;
@@ -33,6 +34,7 @@ public class UserController {
 
     /* ------ 分页 + 搜索 ------ */
     @GetMapping
+    @ReqPerm("user:manage")
     public R<Page<UserPageVo>> page(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
@@ -82,6 +84,7 @@ public class UserController {
 
     /* ------ 新增 ------ */
     @PostMapping
+    @ReqPerm("user:manage")
     public R<Void> add(@RequestBody UserSaveVo vo) {
         if (userService.exist(vo.getUsername())) {
             return R.conflict("账号已存在");
@@ -91,11 +94,14 @@ public class UserController {
         u.setPassword(encoder.encode(vo.getPassword()));
         u.setStatus(vo.getStatus());
         userService.saveUserWithRoleAndPerm(u, vo.getRoleIdList(), vo.getPermCodeList());
+        // 用户-角色绑定已变更（新增/编辑走同一入口），统一全量失效
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 
     /* ------ 编辑 ------ */
     @PutMapping("/{id}")
+    @ReqPerm("user:manage")
     public R<Void> upd(@PathVariable Long id, @RequestBody UserSaveVo vo) {
         SysUser u = userService.getById(id);
         if (u == null) return R.error(404, "用户不存在");
@@ -104,11 +110,13 @@ public class UserController {
             u.setPassword(encoder.encode(vo.getPassword()));
         u.setStatus(vo.getStatus());
         userService.saveUserWithRoleAndPerm(u, vo.getRoleIdList(), vo.getPermCodeList());
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 
     /* ------ 删除 ------ */
     @DeleteMapping("/{id}")
+    @ReqPerm("user:manage")
     public R<Void> del(@PathVariable Long id) {
         // 先清用户-角色中间表
         userRoleService.lambdaUpdate()
@@ -116,33 +124,40 @@ public class UserController {
                 .remove();
         // 最后删角色
         userService.removeById(id);
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 
     /* ------ 重置密码 ------ */
     @PatchMapping("/{id}/pwd")
+    @ReqPerm("user:manage")
     public R<Void> resetPwd(@PathVariable Long id,
                             @RequestParam(defaultValue = "123456789") String password) {
         SysUser u = userService.getById(id);
         if (u == null) return R.error(404, "用户不存在");
         u.setPassword(encoder.encode(password));
         userService.updateById(u);
+        // 递增 token 版本号：被重置密码的用户所有已签发 token 立即失效
+        userService.incrementTokenVersion(u.getUsername());
         return R.ok(null);
     }
 
     /* ------ 下拉框数据 ------ */
     @GetMapping("/roles")
+    @ReqPerm("user:manage")
     public R<List<SysRole>> roles() {
         return R.ok(roleService.listAll());
     }
 
     @GetMapping("/perms")
+    @ReqPerm("user:manage")
     public R<List<SysPerm>> perms() {
         return R.ok(permService.listAll());
     }
 
     /* ------ 验重 ------ */
     @GetMapping("/exists")
+    @ReqPerm("user:manage")
     public R<Boolean> exists(@RequestParam String username) {
         return R.ok(userService.exist(username));
     }

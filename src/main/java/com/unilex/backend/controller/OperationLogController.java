@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.OperationLog;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.OperationLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class OperationLogController {
      * 分页查询操作日志
      */
     @GetMapping
+    @ReqPerm("log:view")
     public R<Page<OperationLog>> page(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,

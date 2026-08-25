@@ -14,12 +14,14 @@ import java.util.List;
 public interface PermApplyService extends IService<PermApply> {
 
     /**
-     * 提交权限申请
+     * 提交权限申请（实际申请的是角色）
      * @param userId 申请人用户ID
-     * @param permId 申请的权限/角色ID
+     * @param roleId 申请的角色ID
      * @param reason 申请理由
+     * @return 已保存的申请记录
+     * @throws IllegalArgumentException 角色不存在、已拥有该角色或存在待审的重复申请时
      */
-    void submitApply(Long userId, Long permId, String reason);
+    PermApply submitApply(Long userId, Long roleId, String reason);
 
     /**
      * 分页查询所有申请记录

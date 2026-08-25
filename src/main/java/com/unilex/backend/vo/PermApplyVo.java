@@ -13,8 +13,8 @@ public class PermApplyVo {
     private Long id;
     /** 申请人姓名 */
     private String applicantName;
-    /** 申请权限描述 */
-    private String permDesc;
+    /** 申请角色描述 */
+    private String roleDesc;
     /** 申请理由 */
     private String reason;
     /** 申请状态 */

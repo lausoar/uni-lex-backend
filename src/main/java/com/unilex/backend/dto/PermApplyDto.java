@@ -7,8 +7,8 @@ import lombok.Data;
  */
 @Data
 public class PermApplyDto {
-    /** 申请的权限ID */
-    private Long permId;
+    /** 申请的角色ID */
+    private Long roleId;
     /** 申请原因 */
     private String reason;
 }

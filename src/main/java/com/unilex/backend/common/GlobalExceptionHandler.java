@@ -29,6 +29,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 处理权限不足异常（PermAspect 抛出）
+     *
+     * @param e 权限异常
+     * @return 403 响应结果
+     */
+    @ExceptionHandler(SecurityException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public R<Void> handleSecurity(SecurityException e) {
+        return R.error(403, e.getMessage());
+    }
+
+    /**
      * 处理通用系统异常
      *
      * @param e 系统异常

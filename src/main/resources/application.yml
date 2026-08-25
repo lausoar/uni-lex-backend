@@ -52,6 +52,18 @@ jwt:
   secret: uni-lex-backend-secret-key-must-long-than-256-bits-1234567890
   expiration: 8h   # 过期时间，支持 Duration 表达式
 
+# OpenClaw 自动开通接口的共享密钥（请求头 X-Provision-Token）
+# 必须从环境变量注入；不配置时接口保持关闭，任何调用都会返回 503
+auto-provision:
+  secret: ${AUTO_PROVISION_SECRET:}
+
+# 允许跨域访问的前端来源（逗号分隔）
+# 生产环境必须通过环境变量 CORS_ALLOWED_ORIGINS 覆盖为实际前端域名，如：
+#   CORS_ALLOWED_ORIGINS=http://139.196.139.138,https://lex.example.com
+# 若前端通过 nginx 反代同源部署（/api 转发到后端），跨域不会触发，保持默认即可
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
+
 # ========== 禁用 Swagger（来自 aj-captcha 传递依赖） ==========
 springfox:
   documentation:

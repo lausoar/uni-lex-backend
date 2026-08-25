@@ -12,20 +12,6 @@ import java.util.List;
 @Mapper
 public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
 
-    /** 幂等删除 */
-    /**
-     * 根据用户ID删除其所有角色关联（幂等删除）。
-     */
-    @Delete("DELETE FROM sys_user_role WHERE user_id = #{userId}")
-    void deleteByUserIdAndRoleId(@Param("userId") Long userId);
-
-    /** 单条授权 */
-    /**
-     * 为用户插入单条角色授权。
-     */
-    @Insert("INSERT INTO sys_user_role(user_id, role_id) VALUES (#{userId}, #{permId})")
-    void insertRole(@Param("userId") Long userId, @Param("permId") Long permId);
-
     /**
      * 根据用户ID查询其关联的角色ID列表。
      */

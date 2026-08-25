@@ -15,8 +15,8 @@ public class PermApply {
     private Long id;
     /** 申请人ID */
     private Long applicantId;
-    /** 申请的权限ID */
-    private Long permId;
+    /** 申请的角色ID（历史上字段误命名为 perm_id，实际存的一直是角色ID） */
+    private Long roleId;
     /** 申请原因 */
     private String reason;
     /** 申请状态：1-待审，2-通过，3-驳回 */

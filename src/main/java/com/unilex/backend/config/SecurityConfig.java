@@ -85,13 +85,14 @@ public class SecurityConfig {
                 // ====== 公开接口（无需认证） ======
 
                 // 1. 获取验证码 & 登录（仅特定路径，不要用 /api/auth/** 通配）
+                //    公开注册已关闭，/api/auth/register 端点已删除
                 .antMatchers(HttpMethod.GET, "/api/auth/captchas").permitAll()
                 .antMatchers("/api/auth/captchas/verify").permitAll()
-                .antMatchers("/api/auth/login").permitAll()
                 .antMatchers("/api/auth/login/captcha").permitAll()
-                .antMatchers("/api/auth/register").permitAll()
 
-                // 2. 自动开通（OpenClaw 回调）
+                // 2. 自动开通（OpenClaw 回调）—— 无登录态的服务间调用，
+                //    由 AutoProvisionController 内部校验共享密钥（X-Provision-Token），
+                //    未配置 AUTO_PROVISION_SECRET 时接口关闭
                 .antMatchers("/api/auto-provision").permitAll()
 
                 // ====== 受保护接口（必须登录） ======

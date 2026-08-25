@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.unilex.backend.common.R;
 import com.unilex.backend.entity.CatDirectory;
 import com.unilex.backend.security.OpLog;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.DirectoryService;
 import com.unilex.backend.vo.DirPageVo;
 import com.unilex.backend.vo.DirSaveVo;
@@ -24,6 +25,7 @@ public class DirController {
 
     /* 1. 整棵树（平表→树，前端直接渲染） */
     @GetMapping("/tree")
+    @ReqPerm("dir:manage")
     public R<List<CatDirectory>> tree() {
         List<CatDirectory> flat = dirService.lambdaQuery()
                 .orderByAsc(CatDirectory::getParentId, CatDirectory::getSortOrder)
@@ -33,6 +35,7 @@ public class DirController {
 
     /* 2. 分页列表（平表，用于表格底部） */
     @GetMapping
+    @ReqPerm("dir:manage")
     public R<Page<DirPageVo>> page(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
@@ -68,6 +71,7 @@ public class DirController {
 
     /* 3. 新增 */
     @PostMapping
+    @ReqPerm("dir:manage")
     @OpLog(module = "directory", operation = "CREATE", description = "新增目录")
     public R<Void> add(@RequestBody DirSaveVo vo) {
         dirService.saveDir(vo);
@@ -76,6 +80,7 @@ public class DirController {
 
     /* 编辑 */
     @PutMapping("/{id}")
+    @ReqPerm("dir:manage")
     @OpLog(module = "directory", operation = "UPDATE", description = "修改目录")
     public R<Void> upd(@PathVariable Long id, @RequestBody DirSaveVo vo) {
         vo.setId(id);
@@ -85,6 +90,7 @@ public class DirController {
 
     /* 4. 删除 */
     @DeleteMapping("/{id}")
+    @ReqPerm("dir:manage")
     @OpLog(module = "directory", operation = "DELETE", description = "删除目录")
     public R<Void> del(@PathVariable Long id) {
         dirService.delDir(id);

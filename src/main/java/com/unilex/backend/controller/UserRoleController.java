@@ -6,6 +6,8 @@ import com.unilex.backend.common.R;
 import com.unilex.backend.entity.SysRole;
 import com.unilex.backend.entity.SysUser;
 import com.unilex.backend.entity.SysUserRole;
+import com.unilex.backend.security.ReqPerm;
+import com.unilex.backend.service.SysPermService;
 import com.unilex.backend.service.SysRoleService;
 import com.unilex.backend.service.SysUserRoleService;
 import com.unilex.backend.service.SysUserService;
@@ -24,9 +26,11 @@ public class UserRoleController {
     private final SysUserService userService;
     private final SysUserRoleService userRoleService;
     private final SysRoleService roleService;
+    private final SysPermService permService;
 
     /* ------ 1. 用户分页（含已有角色 id 列表） ------ */
     @GetMapping("/users")
+    @ReqPerm("user:role")
     public R<Page<UserPageVo>> users(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
@@ -55,12 +59,14 @@ public class UserRoleController {
 
     /* ------ 2. 全部角色（用于 Transfer） ------ */
     @GetMapping("/roles")
+    @ReqPerm("user:role")
     public R<List<SysRole>> roles() {
         return R.ok(roleService.listAll());
     }
 
     /* ------ 3. 保存用户角色 ------ */
     @PutMapping("/{userId}")
+    @ReqPerm("user:role")
     public R<Void> saveRoles(@PathVariable Long userId, @RequestBody List<Long> roleIdList) {
         // 先删后插
         userRoleService.lambdaUpdate().eq(SysUserRole::getUserId, userId).remove();
@@ -69,6 +75,11 @@ public class UserRoleController {
                     .map(rid -> new SysUserRole(userId, rid))
                     .collect(Collectors.toList());
             userRoleService.saveBatch(list);
+        }
+        // 角色变更后使该用户的权限缓存失效
+        SysUser target = userService.getById(userId);
+        if (target != null) {
+            permService.evictUserPermCache(target.getUsername());
         }
         return R.ok(null);
     }

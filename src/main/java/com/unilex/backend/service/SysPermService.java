@@ -43,4 +43,18 @@ public interface SysPermService extends IService<SysPerm> {
      * @param po 权限实体
      */
     void savePerm(SysPerm po);
+
+    /**
+     * 使指定用户的权限缓存失效。
+     * 用户角色发生变更后调用（用户-角色分配、审批授权、自动开通等）。
+     *
+     * @param username 用户名
+     */
+    void evictUserPermCache(String username);
+
+    /**
+     * 使全部用户的权限缓存失效。
+     * 角色-权限关系或权限点本身发生变更后调用（影响面无法定位到具体用户）。
+     */
+    void evictAllPermCache();
 }

@@ -6,11 +6,12 @@ import com.unilex.backend.entity.PermApply;
 import com.unilex.backend.entity.SysPerm;
 import com.unilex.backend.entity.SysRole;
 import com.unilex.backend.entity.SysUser;
+import com.unilex.backend.entity.SysUserRole;
 import com.unilex.backend.mapper.PermApplyMapper;
 import com.unilex.backend.mapper.SysRoleMapper;
-import com.unilex.backend.mapper.SysUserRoleMapper;
 import com.unilex.backend.service.PermApplyService;
 import com.unilex.backend.service.SysPermService;
+import com.unilex.backend.service.SysUserRoleService;
 import com.unilex.backend.service.SysUserService;
 import com.unilex.backend.vo.PermApplyVo;
 import lombok.RequiredArgsConstructor;
@@ -33,17 +34,42 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
     private final SysUserService userService;
     private final SysPermService permService;
     private final SysRoleMapper roleMapper;
-    private final SysUserRoleMapper userRoleMapper;
+    private final SysUserRoleService userRoleService;
 
     @Override
     @Transactional
-    public void submitApply(Long userId, Long permId, String reason) {
+    public PermApply submitApply(Long userId, Long roleId, String reason) {
+        /* 角色必须存在 */
+        if (roleId == null || roleMapper.selectById(roleId) == null) {
+            throw new IllegalArgumentException("申请的角色不存在");
+        }
+
+        /* 已拥有该角色则无需申请 */
+        long owned = userRoleService.lambdaQuery()
+                .eq(SysUserRole::getUserId, userId)
+                .eq(SysUserRole::getRoleId, roleId)
+                .count();
+        if (owned > 0) {
+            throw new IllegalArgumentException("您已拥有该角色，无需重复申请");
+        }
+
+        /* 同一角色已有待审申请，禁止重复提交 */
+        long pending = lambdaQuery()
+                .eq(PermApply::getApplicantId, userId)
+                .eq(PermApply::getRoleId, roleId)
+                .eq(PermApply::getStatus, 1)
+                .count();
+        if (pending > 0) {
+            throw new IllegalArgumentException("该角色的申请正在审批中，请勿重复提交");
+        }
+
         PermApply apply = new PermApply();
         apply.setApplicantId(userId);
-        apply.setPermId(permId);
+        apply.setRoleId(roleId);
         apply.setReason(reason);
         apply.setStatus(1);
         save(apply);
+        return apply;
     }
 
     @Override
@@ -69,8 +95,8 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
             }
 
             // 权限名称
-            SysRole role = roleMapper.selectById(po.getPermId());
-            vo.setPermDesc(role == null ? "-" : role.getDesc());
+            SysRole role = roleMapper.selectById(po.getRoleId());
+            vo.setRoleDesc(role == null ? "-" : role.getDesc());
 
             return vo;
         });
@@ -79,22 +105,46 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
     @Override
     @Transactional
     public void audit(Long applyId, Long approverId, Integer status, String approveMsg) {
+        /* 审批状态只允许 2-通过 / 3-驳回 */
+        if (status == null || (status != 2 && status != 3)) {
+            throw new IllegalArgumentException("非法的审批状态");
+        }
+
         PermApply one = getById(applyId);
         if (one == null || !one.getStatus().equals(1)) {
-            throw new RuntimeException("申请不存在或已审批");
+            throw new IllegalArgumentException("申请不存在或已审批");
         }
+
+        /* 禁止审批自己提交的申请 */
+        if (one.getApplicantId().equals(approverId)) {
+            throw new IllegalArgumentException("不能审批自己提交的申请");
+        }
+
+        /* 通过前确认角色仍然存在 */
+        if (status == 2 && roleMapper.selectById(one.getRoleId()) == null) {
+            throw new IllegalArgumentException("申请的角色已被删除，无法通过");
+        }
+
         one.setStatus(status);
         one.setApproverId(approverId);
         one.setApproveMsg(approveMsg);
         one.setUpdatedAt(LocalDateTime.now());
         updateById(one);
 
-        // 审批通过 → 把权限授予申请人
+        // 审批通过 → 把角色授予申请人（幂等：已拥有则跳过，不影响其已有角色）
         if (status == 2) {
-            // 先删再插，避免重复
-            userRoleMapper.deleteByUserIdAndRoleId(one.getApplicantId());
-            // 插入授权记录F
-            userRoleMapper.insertRole(one.getApplicantId(), one.getPermId());
+            long granted = userRoleService.lambdaQuery()
+                    .eq(SysUserRole::getUserId, one.getApplicantId())
+                    .eq(SysUserRole::getRoleId, one.getRoleId())
+                    .count();
+            if (granted == 0) {
+                userRoleService.save(new SysUserRole(one.getApplicantId(), one.getRoleId()));
+            }
+            // 使申请人权限缓存失效，新角色即时生效
+            SysUser applicant = userService.getById(one.getApplicantId());
+            if (applicant != null) {
+                permService.evictUserPermCache(applicant.getUsername());
+            }
         }
     }
 
@@ -114,8 +164,8 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
             // vo.setApplicantName(...);
 
             // 权限名称
-            SysRole role = roleMapper.selectById(po.getPermId());
-            vo.setPermDesc(role == null ? "-" : role.getDesc());
+            SysRole role = roleMapper.selectById(po.getRoleId());
+            vo.setRoleDesc(role == null ? "-" : role.getDesc());
 
             // 审批人
             if (po.getApproverId() != null) {
@@ -135,8 +185,8 @@ public class PermApplyServiceImpl extends ServiceImpl<PermApplyMapper, PermApply
         SysUser user = userService.getById(po.getApplicantId());
         vo.setApplicantName(user == null ? "-" : user.getUsername());
 
-        SysRole role = roleMapper.selectById(po.getPermId());
-        vo.setPermDesc(role == null ? "-" : role.getDesc());
+        SysRole role = roleMapper.selectById(po.getRoleId());
+        vo.setRoleDesc(role == null ? "-" : role.getDesc());
 
         return vo;
     }

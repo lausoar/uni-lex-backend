@@ -2,6 +2,7 @@ package com.unilex.backend.controller;
 
 import com.unilex.backend.common.R;
 import com.unilex.backend.security.OpLog;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.DirectoryService;
 import com.unilex.backend.vo.DirAddVo;
 import com.unilex.backend.vo.DirSaveVo;
@@ -32,6 +33,7 @@ public class DirectoryController {
      * 新增目录（支持指定排序位置）
      */
     @PostMapping("")
+    @ReqPerm("dir:add")
     @OpLog(module = "directory", operation = "CREATE", description = "新增目录")
     public R<Long> addDir(@RequestBody Map<String, Object> params) {
         DirAddVo vo = new DirAddVo();
@@ -56,6 +58,7 @@ public class DirectoryController {
      * 批量更新目录排序
      */
     @PostMapping("/batch-update-sort")
+    @ReqPerm("dir:add")
     @OpLog(module = "directory", operation = "UPDATE", description = "批量排序目录")
     public R<Void> batchUpdateSort(@RequestBody List<DirSaveVo> sortList) {
         directoryService.batchUpdateSort(sortList);

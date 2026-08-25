@@ -7,6 +7,7 @@ import com.unilex.backend.entity.*;
 import com.unilex.backend.mapper.SysRoleMapper;
 import com.unilex.backend.mapper.SysUserMapper;
 import com.unilex.backend.mapper.SysUserRoleMapper;
+import com.unilex.backend.security.ReqPerm;
 import com.unilex.backend.service.*;
 import com.unilex.backend.vo.RolePageVo;
 import com.unilex.backend.vo.RoleSaveVo;
@@ -34,6 +35,7 @@ public class RoleController {
 
     /* ------ 分页+搜索 ------ */
     @GetMapping
+    @ReqPerm("role:manage")
     public R<Page<RolePageVo>> page(
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
@@ -71,43 +73,52 @@ public class RoleController {
 
     /* ------ 新增 ------ */
     @PostMapping
+    @ReqPerm("role:manage")
     public R<Void> add(@RequestBody RoleSaveVo vo) {
         SysRole r = new SysRole();
         r.setName(vo.getName());
         r.setDesc(vo.getDesc());
         roleService.saveRoleWithPerms(r, vo.getPermIdList());
+        // 角色-权限绑定已变更，影响面为拥有该角色的所有用户
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 
     /* ------ 编辑 ------ */
     @PutMapping("/{id}")
+    @ReqPerm("role:manage")
     public R<Void> upd(@PathVariable Long id, @RequestBody RoleSaveVo vo) {
         SysRole r = roleService.getById(id);
         if (r == null) return R.error(404, "角色不存在");
         r.setName(vo.getName());
         r.setDesc(vo.getDesc());
         roleService.saveRoleWithPerms(r, vo.getPermIdList());
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 
     /* ------ 删除 ------ */
     @DeleteMapping("/{id}")
+    @ReqPerm("role:manage")
     public R<Void> del(@PathVariable Long id) {
         sysRolePermService.lambdaUpdate()
                         .eq(SysRolePerm::getRoleId, id)
                         .remove();
         roleService.removeById(id);
+        permService.evictAllPermCache();
         return R.ok(null);
     }
 
     /* ------ 下拉：全部权限 ------ */
     @GetMapping("/perms")
+    @ReqPerm("role:manage")
     public R<List<SysPerm>> perms() {
         return R.ok(permService.listAll());
     }
 
     /* ------ 检查角色名是否已存在 ------ */
     @GetMapping("/exists")
+    @ReqPerm("role:manage")
     public R<Boolean> exist(@RequestParam String name){
         boolean exist = roleService.lambdaQuery()
                 .eq(SysRole::getName, name.trim())
@@ -117,6 +128,7 @@ public class RoleController {
 
     /* ------ 检查中文描述是否已存在 ------ */
     @GetMapping("/existsDesc")
+    @ReqPerm("role:manage")
     public R<Boolean> existDesc(@RequestParam String desc){
         boolean exist = roleService.lambdaQuery()
                 .eq(SysRole::getDesc, desc.trim())
